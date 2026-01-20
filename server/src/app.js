@@ -3,6 +3,7 @@ import cors from "cors"
 import authRoutes from "./routes/auth.routes.js"
 import testRoutes from "./routes/test.routes.js"
 import postRoutes from "./routes/post.routes.js"
+import commentRoutes from "./routes/comment.routes.js"
 
 const app = express()
 
@@ -16,5 +17,6 @@ app.get("/health", (_, res) => {
 app.use("/api/auth", authRoutes)
 app.use("/api/test", testRoutes)
 app.use("/api/posts", postRoutes)
+app.use("/api/comments", commentRoutes)
 
 export default app
