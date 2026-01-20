@@ -1,6 +1,6 @@
 import Post from "../models/post.model.js"
 import slugify from "slugify"
-import { uploadOnCloudinary } from "../config/cloudinary.js"
+import { deleteFromCloudinary, uploadOnCloudinary } from "../config/cloudinary.js"
 
 const generateExcerpt = (content, length = 150) => {
 	return content.length > length
@@ -62,19 +62,6 @@ const createPost = async (req, res) => {
 			}
 		}
 
-		// if (req.file) {
-		// 	try {
-		// 		const result = await cloudinary.uploader.upload(req.file.path, {
-		// 			folder: "blog_posts",
-		// 		})
-		// 		coverImage = { url: result.secure_url, publicId: result.public_id }
-		// 	} catch (error) {
-		// 		return res
-		// 			.status(500)
-		// 			.json({ message: "Image upload failed", error: error.message })
-		// 	}
-		// }
-
 		const post = await Post.create({
 			title,
 			slug,
@@ -116,13 +103,25 @@ const updatePost = async (req, res) => {
 		if (tags)
 			post.tags = [...new Set(tags.map((tag) => tag.trim().toLowerCase()))]
 		if (status) post.status = status
-		if (coverImage) post.coverImage = coverImage
 
 		// Update excerpt if content changed
 		if (content) post.excerpt = generateExcerpt(content)
 
-		await post.save()
-		return res.json(post)
+		const coverImageLocalPath = req.files?.coverImage?.[0]?.path
+
+		if(coverImageLocalPath) {
+			if (post.coverImage?.publicId) {
+				await deleteFromCloudinary(post.coverImage.publicId)
+			}
+			const uploadedImage = await uploadOnCloudinary(coverImageLocalPath)
+			post.coverImage = {
+				url: uploadedImage.secure_url,
+				publicId: uploadedImage.public_id,
+			}
+		}
+
+		const updatedPost = await post.save()
+		return res.status(200).json({message: "Post updated successfully", updatedPost})
 	} catch (error) {
 		return res.status(500).json({ message: error.message })
 	}
@@ -131,19 +130,31 @@ const updatePost = async (req, res) => {
 const deletePost = async (req, res) => {
 	try {
 		const post = await Post.findById(req.params.id)
-		if (!post) return res.status(404).json({ message: "Post not found" })
+		if (!post) {
+			return res.status(404).json({ message: "Post not found" })
+		}
 
-		// Only admin can delete
-		if (req.user.role !== "admin") {
+		const isAdmin = req.user.role === "admin"
+		const isOwner =
+			post.author.toString() === req.user._id.toString()
+
+		if (!isAdmin && !isOwner) {
 			return res.status(403).json({ message: "Forbidden" })
 		}
 
-		post.isDeleted = true
-		await post.save()
-		return res.json({ message: "Post deleted successfully" })
+		if (post.coverImage?.publicId) {
+			await deleteFromCloudinary(post.coverImage.publicId)
+		}
+
+		await post.deleteOne()
+
+		return res.status(200).json({
+			message: "Post deleted successfully",
+		})
 	} catch (error) {
 		return res.status(500).json({ message: error.message })
 	}
 }
+
 
 export { createPost, updatePost, deletePost, getPublishedPosts, getPostBySlug }

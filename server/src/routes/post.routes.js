@@ -22,12 +22,25 @@ router.post(
 	upload.fields([
 		{
 			name: "coverImage",
-			maxCount: 1
-		}
+			maxCount: 1,
+		},
 	]),
 	createPost,
 )
-router.put("/:id", protect, authorizeRoles("author", "admin"), updatePost)
-router.delete("/:id", protect, authorizeRoles("admin"), deletePost)
+
+router.put(
+	"/:id",
+	protect,
+	authorizeRoles("author", "admin"),
+	upload.fields([
+		{
+			name: "coverImage",
+			maxCount: 1,
+		},
+	]),
+	updatePost,
+)
+
+router.delete("/:id", protect, authorizeRoles("admin", "author"), deletePost)
 
 export default router
