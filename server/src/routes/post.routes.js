@@ -4,6 +4,7 @@ import {
 	deletePost,
 	getPostBySlug,
 	getPublishedPosts,
+	toggleLikePost,
 	updatePost,
 } from "../controllers/post.controller.js"
 import { protect } from "../middlewares/auth.middleware.js"
@@ -42,5 +43,6 @@ router.put(
 )
 
 router.delete("/:id", protect, authorizeRoles("admin", "author"), deletePost)
+router.put("/:id/like", protect, toggleLikePost)
 
 export default router

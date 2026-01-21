@@ -56,6 +56,13 @@ const postSchema = new mongoose.Schema(
 			default: 0,
 		},
 
+		likes: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "User"
+			}
+		],
+
 		isDeleted: {
 			type: Boolean,
 			default: false,

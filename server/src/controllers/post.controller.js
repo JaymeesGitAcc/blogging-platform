@@ -1,6 +1,9 @@
 import Post from "../models/post.model.js"
 import slugify from "slugify"
-import { deleteFromCloudinary, uploadOnCloudinary } from "../config/cloudinary.js"
+import {
+	deleteFromCloudinary,
+	uploadOnCloudinary,
+} from "../config/cloudinary.js"
 
 const generateExcerpt = (content, length = 150) => {
 	return content.length > length
@@ -109,7 +112,7 @@ const updatePost = async (req, res) => {
 
 		const coverImageLocalPath = req.files?.coverImage?.[0]?.path
 
-		if(coverImageLocalPath) {
+		if (coverImageLocalPath) {
 			if (post.coverImage?.publicId) {
 				await deleteFromCloudinary(post.coverImage.publicId)
 			}
@@ -121,7 +124,9 @@ const updatePost = async (req, res) => {
 		}
 
 		const updatedPost = await post.save()
-		return res.status(200).json({message: "Post updated successfully", updatedPost})
+		return res
+			.status(200)
+			.json({ message: "Post updated successfully", updatedPost })
 	} catch (error) {
 		return res.status(500).json({ message: error.message })
 	}
@@ -135,8 +140,7 @@ const deletePost = async (req, res) => {
 		}
 
 		const isAdmin = req.user.role === "admin"
-		const isOwner =
-			post.author.toString() === req.user._id.toString()
+		const isOwner = post.author.toString() === req.user._id.toString()
 
 		if (!isAdmin && !isOwner) {
 			return res.status(403).json({ message: "Forbidden" })
@@ -156,5 +160,43 @@ const deletePost = async (req, res) => {
 	}
 }
 
+const toggleLikePost = async (req, res) => {
+	try {
+		const post = await Post.findById(req.params.id)
+		if (!post) {
+			return res.status(404).json({ message: "Post not found" })
+		}
 
-export { createPost, updatePost, deletePost, getPublishedPosts, getPostBySlug }
+		const userId = req.user._id
+
+		const alreadyLiked = post.likes.includes(userId)
+
+		if (alreadyLiked) {
+			// Unlike
+			post.likes = post.likes.filter(
+				(id) => id.toString() !== userId.toString(),
+			)
+		} else {
+			// Like
+			post.likes.push(userId)
+		}
+
+		await post.save()
+
+		return res.json({
+			message: alreadyLiked ? "Post unliked" : "Post liked",
+			likesCount: post.likes.length,
+		})
+	} catch (error) {
+		return res.status(500).json({ message: error.message })
+	}
+}
+
+export {
+	createPost,
+	updatePost,
+	deletePost,
+	getPublishedPosts,
+	getPostBySlug,
+	toggleLikePost,
+}
