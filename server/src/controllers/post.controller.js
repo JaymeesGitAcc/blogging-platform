@@ -4,6 +4,7 @@ import {
 	deleteFromCloudinary,
 	uploadOnCloudinary,
 } from "../config/cloudinary.js"
+import { sendError, sendSuccess } from "../utils/response.js"
 
 const generateExcerpt = (content, length = 150) => {
 	return content.length > length
@@ -16,9 +17,9 @@ const getPublishedPosts = async (_, res) => {
 		const posts = await Post.find({ status: "published", isDeleted: false })
 			.populate("author", "name email")
 			.sort({ createdAt: -1 })
-		return res.json(posts)
+		return sendSuccess(res, "Posts Fetched Successfully", 200, posts)
 	} catch (error) {
-		return res.status(500).json({ message: error.message })
+		return sendError(res, error.message, 500)
 	}
 }
 
@@ -29,14 +30,14 @@ const getPostBySlug = async (req, res) => {
 			isDeleted: false,
 		}).populate("author", "name email")
 
-		if (!post) return res.status(404).json({ message: "Post not found" })
+		if (!post) return sendError(res, "Post not found", 404)
 
 		post.views += 1
 		await post.save()
 
-		return res.json(post)
+		return sendSuccess(res, "Post fetched successfully", 200, post)
 	} catch (error) {
-		return res.status(500).json({ message: error.message })
+		return sendError(res, error.message, 500)
 	}
 }
 
@@ -45,9 +46,8 @@ const createPost = async (req, res) => {
 		const { title, content, tags, status } = req.body
 		let coverImage = null
 
-		if (!title || !content) {
-			return res.status(400).json({ message: "Title and content are required" })
-		}
+		if (!title || !content)
+			return sendError(res, "Title and content are required", 400)
 
 		const slug = slugify(title, { lower: true, strict: true })
 		const excerpt = generateExcerpt(content)
@@ -59,9 +59,7 @@ const createPost = async (req, res) => {
 				const result = await uploadOnCloudinary(coverImageLocalPath)
 				coverImage = { url: result.secure_url, publicId: result.public_id }
 			} catch (error) {
-				return res
-					.status(500)
-					.json({ message: "Image upload failed", error: error.message })
+				return sendError(res, error.message, 500)
 			}
 		}
 
@@ -76,9 +74,9 @@ const createPost = async (req, res) => {
 			status: status || "draft",
 		})
 
-		return res.status(201).json(post)
+		return sendSuccess(res, "Post created successfully", 201, post)
 	} catch (error) {
-		return res.status(500).json({ message: error.message })
+		return sendError(res, error.message, 500)
 	}
 }
 
@@ -86,17 +84,17 @@ const updatePost = async (req, res) => {
 	try {
 		const post = await Post.findById(req.params.id)
 
-		if (!post) return res.status(404).json({ message: "Post not found" })
+		if (!post) return sendError(res, "Post not found", 404)
 
 		// Only author or admin can edit
 		if (
 			post.author.toString() !== req.user._id.toString() &&
 			req.user.role !== "admin"
 		) {
-			return res.status(403).json({ message: "Forbidden" })
+			return sendError(res, "Forbidden", 403)
 		}
 
-		const { title, content, tags, status, coverImage } = req.body
+		const { title, content, tags, status } = req.body
 
 		if (title) {
 			post.title = title
@@ -124,26 +122,22 @@ const updatePost = async (req, res) => {
 		}
 
 		const updatedPost = await post.save()
-		return res
-			.status(200)
-			.json({ message: "Post updated successfully", updatedPost })
+		sendSuccess(res, "Post updated successfully", 200, updatedPost)
 	} catch (error) {
-		return res.status(500).json({ message: error.message })
+		return sendError(res, error.message, 500)
 	}
 }
 
 const deletePost = async (req, res) => {
 	try {
 		const post = await Post.findById(req.params.id)
-		if (!post) {
-			return res.status(404).json({ message: "Post not found" })
-		}
+		if (!post) return sendError(res, "Post not found", 404)
 
 		const isAdmin = req.user.role === "admin"
 		const isOwner = post.author.toString() === req.user._id.toString()
 
 		if (!isAdmin && !isOwner) {
-			return res.status(403).json({ message: "Forbidden" })
+			return sendError(res, "Forbidden", 403)
 		}
 
 		if (post.coverImage?.publicId) {
@@ -152,20 +146,17 @@ const deletePost = async (req, res) => {
 
 		await post.deleteOne()
 
-		return res.status(200).json({
-			message: "Post deleted successfully",
-		})
+		return sendSuccess(res, "Post deleted sucessfully")
 	} catch (error) {
-		return res.status(500).json({ message: error.message })
+		return sendError(res, error.message, 500)
 	}
 }
 
 const toggleLikePost = async (req, res) => {
 	try {
 		const post = await Post.findById(req.params.id)
-		if (!post) {
-			return res.status(404).json({ message: "Post not found" })
-		}
+
+		if (!post) return sendError(res, "Post not found", 404)
 
 		const userId = req.user._id
 
@@ -183,12 +174,9 @@ const toggleLikePost = async (req, res) => {
 
 		await post.save()
 
-		return res.json({
-			message: alreadyLiked ? "Post unliked" : "Post liked",
-			likesCount: post.likes.length,
-		})
+		return sendSuccess(res, alreadyLiked ? "Post unliked" : "Post liked", 200)
 	} catch (error) {
-		return res.status(500).json({ message: error.message })
+		return sendError(res, error.message, 500)
 	}
 }
 
