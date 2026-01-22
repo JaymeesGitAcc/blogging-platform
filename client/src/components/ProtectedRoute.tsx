@@ -7,7 +7,9 @@ interface Props {
 }
 
 export const ProtectedRoute = ({ children }: Props) => {
-	const { isAuthenticated } = useAuth()
+	
+	const isAuthenticated = localStorage.getItem("user") || null
+	// const {isAuthenticated}= useAuth()
 
 	if (!isAuthenticated) {
 		return <Navigate to="/login" replace />

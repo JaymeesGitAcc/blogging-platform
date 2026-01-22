@@ -9,6 +9,8 @@ import {
 } from "./ui/card"
 import { Button } from "./ui/button"
 import { Badge } from "./ui/badge"
+import { formatDate } from "@/utils/formatDate"
+import { useNavigate } from "react-router-dom"
 
 interface PostCardProps {
 	imageUrl?: string | null
@@ -20,6 +22,7 @@ interface PostCardProps {
 	authorName: string
 	createdAt: string
 	views: number
+	slug: string
 }
 
 const PostCard = ({
@@ -32,15 +35,11 @@ const PostCard = ({
 	authorName,
 	createdAt,
 	views,
+	slug
 }: PostCardProps) => {
-	const formatDate = (dateString: string) => {
-		const date = new Date(dateString)
-		return date.toLocaleDateString("en-US", {
-			month: "short",
-			day: "numeric",
-			year: "numeric",
-		})
-	}
+
+	const navigate = useNavigate()
+
 	return (
 		<Card className="overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
 			<div className="relative h-50 overflow-hidden">
@@ -111,7 +110,9 @@ const PostCard = ({
 						<span>{likes.length}</span>
 					</div>
 				</div>
-				<Button variant="ghost" size="sm" className="group">
+				<Button variant="ghost" size="sm" className="group" onClick={() => {
+					navigate(`/${slug}`)
+				}}>
 					Read
 					<ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
 				</Button>

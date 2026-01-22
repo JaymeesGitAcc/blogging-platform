@@ -23,8 +23,8 @@ const LoginPage = () => {
 	const [error, setError] = useState("")
 	const [loading, setLoading] = useState(false)
 
-  const {login} = useAuth()
-  const navigate = useNavigate()
+	const { login } = useAuth()
+	const navigate = useNavigate()
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
@@ -38,21 +38,21 @@ const LoginPage = () => {
 		}
 
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-		
-    if (!emailRegex.test(email)) {
+
+		if (!emailRegex.test(email)) {
 			setError("Please enter a valid email address")
 			setLoading(false)
 			return
 		}
-		 try {
-      await login(email, password);
-      toast.success("You are logged in Successfully")
-      navigate("/"); // redirect to home after login
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
+		try {
+			await login(email, password)
+			toast.success("You are logged in Successfully")
+			navigate("/")
+		} catch (err: any) {
+			setError(err.response?.data?.message || "Login failed")
+		} finally {
+			setLoading(false)
+		}
 	}
 
 	return (
@@ -137,7 +137,12 @@ const LoginPage = () => {
 
 						<div className="text-sm text-center text-muted-foreground">
 							Don't have an account?{" "}
-              <Link to="/register" className="text-primary hover:underline font-medium">Sign Up</Link>
+							<Link
+								to="/register"
+								className="text-primary hover:underline font-medium"
+							>
+								Sign Up
+							</Link>
 						</div>
 					</CardFooter>
 				</form>

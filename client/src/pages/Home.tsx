@@ -14,13 +14,14 @@ const Home = () => {
 		;(async () => {
 			try {
 				const result = await api.get("/api/posts")
-				console.log(result.data)
-				setPosts(result.data)
+				const {data} = result.data
+				setPosts(data)
 			} catch (error: any) {
 				console.log(error.message)
 			}
 		})()
 	}, [])
+	
 	return (
 		<div>
 			<Button
@@ -45,6 +46,7 @@ const Home = () => {
 						likes={post.likes}
 						tags={post.tags}
 						views={post.views}
+						slug={post.slug}
 					/>
 				))}
 			</div>

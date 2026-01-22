@@ -17,18 +17,19 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
 	const [user, setUser] = useState<User | null>(null)
 
+	const storedUser = localStorage.getItem("user")
+
 	// Load user from localStorage on mount
 	useEffect(() => {
-		const storedUser = localStorage.getItem("user")
-		if (storedUser) {
+	    if (storedUser) {
 			setUser(JSON.parse(storedUser))
 		}
-	}, [])
+	}, [storedUser])
 
 	// Login function
 	const login = async (email: string, password: string) => {
 		const res = await api.post<AuthResponse>("/api/auth/login", { email, password })
-		const { token, user } = res.data.data
+		const { token,user } = res.data.data
 
 		localStorage.setItem("token", token)
 		localStorage.setItem("user", JSON.stringify(user))
