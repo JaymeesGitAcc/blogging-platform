@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
 import { api } from "@/lib/api"
 import type { AuthResponse, User } from "@/types/auth"
+import { toast } from "sonner"
 
 interface AuthContextType {
 	user: User | null
@@ -40,6 +41,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	const logout = () => {
 		localStorage.removeItem("token")
 		localStorage.removeItem("user")
+		toast.success("Logged out Successfully", { position: "bottom-right" })
 		setUser(null)
 	}
 

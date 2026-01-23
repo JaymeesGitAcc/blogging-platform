@@ -13,7 +13,9 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Mail, Lock, User, PenLine } from "lucide-react"
 import { api } from "@/lib/api"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { registerUser } from "@/services/auth.api"
+import { toast } from "sonner"
 
 export default function Register() {
 	const [name, setName] = useState("")
@@ -22,6 +24,8 @@ export default function Register() {
 	const [showPassword, setShowPassword] = useState(false)
 	const [error, setError] = useState("")
 	const [loading, setLoading] = useState(false)
+
+	const navigate = useNavigate()
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
@@ -56,7 +60,11 @@ export default function Register() {
 		}
 
 		try {
-			
+			const response = await registerUser(name, email, password)
+			if(response) {
+				toast.success("User Registered Successfully", { position: "bottom-right" })
+				navigate("/login")
+			}
 		} catch (err) {
 			setError("Failed to create account. Please try again.")
 		} finally {

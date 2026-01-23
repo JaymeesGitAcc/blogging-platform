@@ -30,8 +30,8 @@ const ViewPost = () => {
   const { user } = useAuth()
 
   const handleLike = async () => {
-    const response = await togglePostLike(post?.postId)
-    
+    const response = await togglePostLike(post?._id)
+
     if (!response) {
       toast.error("Something went wrong")
     }
@@ -47,7 +47,6 @@ const ViewPost = () => {
     }
   }
 
-  
   useEffect(() => {
     ;(async () => {
       setLoading(true)
@@ -147,11 +146,6 @@ const ViewPost = () => {
           {/* Author and Meta Info */}
           <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-3">
-              {/* <Avatar className="h-12 w-12 border-2 border-primary/20">
-                <AvatarFallback className="bg-primary text-primary-foreground text-lg">
-                  {post.author.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar> */}
               <div>
                 <p className="font-semibold text-slate-900">
                   {post.author.name}
@@ -182,18 +176,19 @@ const ViewPost = () => {
       </div>
 
       {/* Post Image */}
-      {post.imageUrl && (
-        <div className="max-w-5xl mx-auto px-6 -mt-8 mb-12">
-          <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+
+      <div className="max-w-5xl mx-auto px-6 -mt-8 mb-12">
+        <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+          {post?.coverImage?.url && (
             <img
-              src={post.imageUrl}
+              src={post.coverImage.url}
               alt={post.title}
               className="w-full h-auto object-cover"
               style={{ maxHeight: "500px" }}
             />
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 pb-16">
@@ -232,11 +227,7 @@ const ViewPost = () => {
                   />
                   {isLiked ? "Liked" : "Like this post"}({likesCount})
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="group"
-                >
+                <Button variant="outline" size="lg" className="group">
                   <Share2 className="mr-2 h-5 w-5" />
                   Share
                 </Button>
