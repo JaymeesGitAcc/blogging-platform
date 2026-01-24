@@ -1,3 +1,4 @@
+import BackButton from "@/components/BackButton"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -9,7 +10,6 @@ import { formatDate } from "@/utils/formatDate"
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar"
 import { Separator } from "@radix-ui/react-separator"
 import {
-  ArrowLeft,
   BookOpen,
   Calendar,
   Eye,
@@ -95,10 +95,7 @@ const ViewPost = () => {
       {/* Sticky Header */}
       <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b shadow-sm">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Button variant="ghost" className="group">
-            <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-            Back
-          </Button>
+         <BackButton />
 
           <div className="flex items-center gap-2">
             <Button
