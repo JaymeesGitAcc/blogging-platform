@@ -70,9 +70,9 @@ const createPost = async (req, res) => {
 
     if (req.body.tags) {
       tags = JSON.parse(req.body.tags)
+      tags = [...new Set(tags.map((tag) => tag.trim().toLowerCase()))]
     }
 
-    tags = tags.map((tag) => tag.toLowerCase())
 
     const post = await Post.create({
       title,
@@ -105,21 +105,29 @@ const updatePost = async (req, res) => {
       return sendError(res, "Forbidden", 403)
     }
 
-    const { title, content, tags, status } = req.body
+    const { title, content, status } = req.body
 
     if (title) {
       post.title = title
       post.slug = slugify(title, { lower: true, strict: true })
     }
     if (content) post.content = content
-    if (tags)
-      post.tags = [...new Set(tags.map((tag) => tag.trim().toLowerCase()))]
+
+    let tags = []
+    if (req.body.tags) {
+      tags = JSON.parse(req.body.tags)
+    }
+    post.tags = [...new Set(tags?.map((tag) => tag.trim().toLowerCase()))]
+
     if (status) post.status = status
 
     // Update excerpt if content changed
     if (content) post.excerpt = generateExcerpt(content)
 
-    const coverImageLocalPath = req.files?.coverImage?.[0]?.path
+    let coverImageLocalPath
+    if (req.files?.coverImage && req.files.coverImage.length > 0) {
+      coverImageLocalPath = req.files.coverImage[0].path
+    }
 
     if (coverImageLocalPath) {
       if (post.coverImage?.publicId) {
