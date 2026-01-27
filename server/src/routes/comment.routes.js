@@ -4,8 +4,8 @@ import { addComment, deleteComment, getCommentsByPost } from "../controllers/com
 
 const router = express.Router()
 
-router.post("/", protect, addComment)
+router.post("/:id", protect, addComment)
 router.delete("/:id", protect, deleteComment)
-router.get("/:postId", getCommentsByPost)
+router.get("/:id", getCommentsByPost)
 
 export default router

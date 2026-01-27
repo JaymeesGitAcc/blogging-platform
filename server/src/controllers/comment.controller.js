@@ -3,61 +3,80 @@ import Post from "../models/post.model.js"
 import { sendError, sendSuccess } from "../utils/response.js"
 
 const addComment = async (req, res) => {
-	try {
-		const { postId, content } = req.body
+  try {
+    const { content } = req.body
+    const postId = req.params.id
 
-		if (!postId || !content) {
-			return sendError(res, "Post ID and content required", 400)
-		}
+    if (!postId || !content) {
+      return sendError(res, "Post ID and content required", 400)
+    }
 
-		const post = await Post.findById(postId)
+    const post = await Post.findById(postId)
 
-		if (!post) return sendError(res, "Post not found", 404)
+    if (!post) return sendError(res, "Post not found", 404)
 
-		const comment = await Comment.create({
-			content,
-			author: req.user._id,
-			post: post._id,
-		})
+    const comment = await Comment.create({
+      content,
+      author: req.user._id,
+      post: post._id,
+    })
 
-		await comment.populate("author", "name email")
+    await comment.populate("author", "name email")
 
-		return sendSuccess(res)
-	} catch (error) {
-		return sendError(res, error.message, 500)
-	}
+    return sendSuccess(res, "Comment added Successfully", 201, comment)
+  } catch (error) {
+    return sendError(res, error.message, 500)
+  }
 }
 
 const deleteComment = async (req, res) => {
-	try {
-		const comment = await Comment.findById(req.params.id)
+  try {
+    const comment = await Comment.findById(req.params.id)
 
-		if (!comment) return sendError(res, "Comment not found", 404)
+    if (!comment) return sendError(res, "Comment not found", 404)
 
-		if (
-			req.user.role !== "admin" &&
-			comment.author.toString() !== req.user._id.toString()
-		) {
-			return sendError(res, "Forbidden", 403)
-		}
+    if (
+      req.user.role !== "admin" &&
+      comment.author.toString() !== req.user._id.toString()
+    ) {
+      return sendError(res, "Forbidden", 403)
+    }
 
-		await comment.deleteOne()
-		return sendSuccess(res, "Comment deleted successfully", 200)
-	} catch (error) {
-		return sendError(res, error.message, 500)
-	}
+    await comment.deleteOne()
+    return sendSuccess(res, "Comment deleted successfully", 200)
+  } catch (error) {
+    return sendError(res, error.message, 500)
+  }
 }
 
 const getCommentsByPost = async (req, res) => {
   try {
-    const postId = req.params.postId
-    const comments = await Comment.find({ post: postId })
-      .populate("author", "name email")
-      .sort({ createdAt: -1 })
+    const postId = req.params.id
+	const post = await Post.findById(postId)
 
-    return sendSuccess(res, "comments fetched", 200, comments)
+	if(!post) return sendError(res, "Post not found", 404)
+    
+	const page = Number(req.query.page) || 1
+    const limit = Number(req.query.limit) || 10
+    const skip = (page - 1) * limit
+
+    const [comments, total] = await Promise.all([
+      Comment.find({ post: postId })
+        .populate("author", "name email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Comment.countDocuments({ post: postId }),
+    ])
+
+    return sendSuccess(res, "comments fetched", 200, comments, {
+      page,
+      total,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    })
   } catch (error) {
-	return sendError(res, error.message, 500)
+    return sendError(res, error.message, 500)
   }
 }
 
