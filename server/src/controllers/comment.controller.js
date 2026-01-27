@@ -52,11 +52,11 @@ const deleteComment = async (req, res) => {
 const getCommentsByPost = async (req, res) => {
   try {
     const postId = req.params.id
-	const post = await Post.findById(postId)
+    const post = await Post.findById(postId)
 
-	if(!post) return sendError(res, "Post not found", 404)
-    
-	const page = Number(req.query.page) || 1
+    if (!post) return sendError(res, "Post not found", 404)
+
+    const page = Number(req.query.page) || 1
     const limit = Number(req.query.limit) || 10
     const skip = (page - 1) * limit
 
@@ -80,4 +80,29 @@ const getCommentsByPost = async (req, res) => {
   }
 }
 
-export { addComment, deleteComment, getCommentsByPost }
+const updateComment = async (req, res) => {
+  const { content } = req.body
+  const commentId = req.params.id
+
+  try {
+    const comment = await Comment.findById(commentId)
+    if (!comment) sendError(res, "Comment not found", 404)
+    
+     if (
+      req?.user?.role !== "admin" &&
+      comment?.author?.toString() !== req?.user?._id.toString()
+    ) {
+      return sendError(res, "Forbidden", 403)
+    }
+
+    comment.content = content
+    const updatedComment = await comment.save()
+
+    return sendSuccess(res, "Comment updated", 201, updatedComment)
+
+  } catch (error) {
+    sendError(res, "Something went wrong", 500)
+  }
+}
+
+export { addComment, deleteComment, getCommentsByPost, updateComment }
