@@ -1,24 +1,33 @@
-import BackButton from "@/components/BackButton"
+import BlogNotFound from "@/components/BlogNotFound"
+import CommentsSection from "@/components/CommentsSection"
+import DeleteAlert from "@/components/DeleteAlert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuth } from "@/contexts/AuthContext"
-import { getPostBySlug, togglePostLike } from "@/services/posts.api.ts"
+import { getCommentsByPost, updateComment } from "@/services/comments.api"
+import {
+  deletePost,
+  getPostBySlug,
+  togglePostLike,
+} from "@/services/posts.api.ts"
+import type { Comment } from "@/types/comment.types"
 import type { Post } from "@/types/post.types.ts"
 import { formatContent } from "@/utils/formatContent"
 import { formatDate } from "@/utils/formatDate"
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar"
 import { Separator } from "@radix-ui/react-separator"
 import {
-  BookOpen,
   Calendar,
   Eye,
+  FileEdit,
   Heart,
   Share2,
+  Trash2,
   User,
 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { toast } from "sonner"
 
 const ViewPost = () => {
@@ -26,8 +35,18 @@ const ViewPost = () => {
   const [loading, setLoading] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const [likesCount, setLikesCount] = useState<number>(0)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [comments, setComments] = useState<Comment[]>([])
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
+  const [totalComments, setTotalComments] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [removedComment, setRemovedComment] = useState<Comment | null>(null)
   const { slug } = useParams()
   const { user } = useAuth()
+  const navigate = useNavigate()
+  const isAuthor = user?._id === post?.author?._id
+  const limit = 5
 
   const handleLike = async () => {
     const response = await togglePostLike(post?._id)
@@ -45,6 +64,102 @@ const ViewPost = () => {
       setLikesCount((prev) => prev - 1)
       toast.success("Post unliked", { position: "bottom-right" })
     }
+  }
+
+  const handleConfirmDelete = async () => {
+    try {
+      const res = await deletePost(post?._id)
+      console.log("Blog deletion response", res)
+      toast.success("Blog Deleted Successfully", { position: "top-right" })
+      setTimeout(() => {
+        navigate("/")
+      }, 1000)
+    } catch (error: any) {
+      toast.error(error.message || "Couldn't delete post", {
+        position: "bottom-right",
+      })
+      console.log(error.message)
+    }
+  }
+
+  const handleAddComment = (comment: Comment) => {
+    if (page === 1) {
+      if (comments.length === limit) {
+        setComments((prev) => [comment, ...prev].slice(0, prev.length))
+        setRemovedComment(comments[comments.length - 1])
+        setHasMore(true)
+      } else {
+        setComments((prev) => [comment, ...prev])
+      }
+    } else {
+      setComments((prev) => [comment, ...prev])
+    }
+    setTotalComments((pre) => pre + 1)
+  }
+
+  // console.log(comments);
+
+  const handleRemoveComment = (commentId: string) => {
+    setComments((prev) => prev.filter((c) => c._id !== commentId))
+    setTotalComments((c) => c - 1)
+  }
+
+  const loadCommments = async (pageToLoad = 1) => {
+    try {
+      const response = await getCommentsByPost(post?._id, pageToLoad, limit)
+      if (!response) return
+      const { data: newComments, meta } = response
+
+      setTotalPages(meta.totalPages)
+      if (meta.totalPages > 1) {
+        setHasMore(true)
+      }
+      setTotalComments(meta.total)
+      setHasMore(pageToLoad < meta.totalPages)
+      if (!removedComment) {
+        setComments((prev) => [...prev, ...newComments])
+      } else {
+        if (comments.length < limit) {
+          setComments((prev) => [
+            ...prev,
+            { ...removedComment },
+            ...newComments,
+          ])
+        } else {
+          setComments((prev) => [
+            ...prev,
+            { ...removedComment },
+            ...newComments.slice(1),
+          ])
+        }
+        setRemovedComment(null)
+      }
+    } catch (error: any) {
+      console.log(error.message)
+    }
+  }
+
+  const handleUpdateComment = async (id: string, content: string) => {
+    try {
+      const response = await updateComment(id, content)
+      if (!response)
+        toast.error("Something went wrong", { position: "bottom-right" })
+
+      console.log(response.data)
+
+      setComments((prev) =>
+        prev.map((c) => (c._id === id ? { ...c, content } : c)),
+      )
+      toast.success("Comment Updated!", { position: "top-right" })
+    } catch (error) {
+      toast.error("Something went wrong", { position: "bottom-right" })
+    }
+  }
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1
+    setPage(nextPage)
+    loadCommments(nextPage)
   }
 
   useEffect(() => {
@@ -70,6 +185,8 @@ const ViewPost = () => {
         setIsLiked(true)
       }
     }
+    // load comments on the post
+    loadCommments()
   }, [post])
 
   if (loading) {
@@ -83,36 +200,10 @@ const ViewPost = () => {
     )
   }
 
-  if (!post)
-    return (
-      <div>
-        <h1>Post Not found</h1>
-      </div>
-    )
+  if (!post) return <BlogNotFound />
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b shadow-sm">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-         <BackButton />
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant={isLiked ? "default" : "outline"}
-              size="sm"
-              onClick={handleLike}
-              className="group"
-            >
-              <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
-              <span className="ml-2 hidden sm:inline">
-                {isLiked ? "Unlike" : "Like"}
-              </span>
-            </Button>
-          </div>
-        </div>
-      </div>
-
       {/* Hero Section */}
       <div className="bg-gradient-to-b from-white to-slate-50 border-b">
         <div className="max-w-4xl mx-auto px-6 py-12">
@@ -174,7 +265,7 @@ const ViewPost = () => {
 
       {/* Post Image */}
 
-      <div className="max-w-5xl mx-auto px-6 -mt-8 mb-12">
+      <div className="max-w-4xl mx-auto px-6 -mt-8 mb-12">
         <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
           {post?.coverImage?.url && (
             <img
@@ -203,6 +294,29 @@ const ViewPost = () => {
               }}
             />
           </CardContent>
+           <CardContent>
+            <div className="flex justify-end">
+              {isAuthor ? (
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    className="bg-red-700 hover:bg-red-800"
+                    onClick={() => setDeleteDialogOpen(true)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span className="hidden sm:inline">Delete Blog</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => navigate(`/update/${post?.slug}`)}
+                  >
+                    <FileEdit className="h-4 h-4" />
+                    <span className="hidden sm:inline">Update Blog</span>
+                  </Button>
+                </div>
+              ) : null}
+            </div>
+          </CardContent>
         </Card>
 
         {/* Engagement Section */}
@@ -213,17 +327,24 @@ const ViewPost = () => {
                 Did you find this article helpful?
               </p>
               <div className="flex items-center justify-center gap-4">
-                <Button
-                  variant={isLiked ? "default" : "outline"}
-                  size="lg"
-                  onClick={handleLike}
-                  className="group"
-                >
-                  <Heart
-                    className={`mr-2 h-5 w-5 ${isLiked ? "fill-current" : ""}`}
-                  />
-                  {isLiked ? "Liked" : "Like this post"}({likesCount})
-                </Button>
+                {user ? (
+                  <Button
+                    variant={isLiked ? "default" : "outline"}
+                    size="lg"
+                    onClick={handleLike}
+                    className="group"
+                  >
+                    <Heart
+                      className={`mr-2 h-5 w-5 ${isLiked ? "fill-current" : ""}`}
+                    />
+                    {isLiked ? "Liked" : "Like this post"}
+                  </Button>
+                ) : (
+                  <Button onClick={() => navigate("/login")}>
+                    <Heart className={`mr-2 h-5 w-5`} />
+                    Login to like this post
+                  </Button>
+                )}
                 <Button variant="outline" size="lg" className="group">
                   <Share2 className="mr-2 h-5 w-5" />
                   Share
@@ -283,8 +404,31 @@ const ViewPost = () => {
           </Card>
         </div>
 
+        {isAuthor ? (
+          <DeleteAlert
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+            onConfirm={handleConfirmDelete}
+          />
+        ) : null}
+
+        <div className="my-6">
+          {comments && (
+            <CommentsSection
+              comments={comments}
+              postId={post?._id}
+              hasMore={hasMore}
+              total={totalComments}
+              onLoadMore={handleLoadMore}
+              onAddComment={handleAddComment}
+              onRemoveComment={handleRemoveComment}
+              onUpdateComment={handleUpdateComment}
+            />
+          )}
+        </div>
+
         {/* Related Posts Placeholder */}
-        <Card className="mt-12 shadow-lg">
+        {/* <Card className="mt-12 shadow-lg">
           <CardContent className="pt-8 pb-8">
             <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
               <BookOpen className="h-6 w-6 text-primary" />
@@ -294,7 +438,7 @@ const ViewPost = () => {
               Discover more great content on similar topics...
             </p>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   )

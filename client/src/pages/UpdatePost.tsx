@@ -16,13 +16,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Upload, Save, ImagePlus, Tag, X } from "lucide-react"
-import { useState } from "react"
-import { createPost } from "@/services/posts.api"
+import { PenLine, Upload, Save, ImagePlus, Tag, X} from "lucide-react"
+import BackButton from "@/components/BackButton"
+import { useEffect, useState } from "react"
+import { getPostBySlug, updatePost } from "@/services/posts.api"
 import { toast } from "sonner"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
+import type { Post } from "@/types/post.types"
 
-const CreatePost = () => {
+const UpdatePost = () => {
+  const { slug } = useParams()
   const [title, setTitle] = useState("")
   const [status, setStatus] = useState("published")
   const [content, setContent] = useState("")
@@ -30,6 +33,7 @@ const CreatePost = () => {
   const [coverImage, setCoverImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [postToUpdate, setPostToUpdate] = useState<Post | null>(null)
   const navigate = useNavigate()
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +79,7 @@ const CreatePost = () => {
       formData.append("content", content)
       formData.append("status", status)
 
-      if (tags.trim()) {
+      if (tags.trim()) {				
         const tagsArray = tags
           .split(",")
           .map((tag) => tag.trim())
@@ -86,22 +90,17 @@ const CreatePost = () => {
         formData.append("coverImage", coverImage)
       }
 
-      const response = await createPost(formData)
+      const response = await updatePost(postToUpdate?._id, formData)
 
       if (response) {
-        let message =
-          status === "published"
-            ? "Blog Published successfully"
-            : "Blog saved as draft"
-        toast.success(message, { position: "top-right" })
-        console.log(response)
+        toast.success("Blog Updated Successfully", { position: "top-right" })
 
         setTimeout(() => {
           navigate(`/${response.data.slug}`)
         }, 500)
       }
     } catch (error: any) {
-      toast.error("Failed to create post", {
+      toast.error("Failed to update blog", {
         position: "bottom-right",
       })
     } finally {
@@ -109,9 +108,37 @@ const CreatePost = () => {
     }
   }
 
+  useEffect(() => {
+    const loadPost = async () => {
+      try {
+        const response = await getPostBySlug(slug)
+				setPostToUpdate(response)
+        if (response) {
+          setTitle(response.title)
+          setContent(response.content)
+          setStatus(response.status)
+          if (response.tags && response.tags.length > 0) {
+            let str = ""
+            for (let tag of response.tags) {
+              str += tag + ","
+            }
+            str = str.slice(0, str.length - 1)
+            setTags(str)
+          }
+        }
+        if (response.coverImage) {
+          setImagePreview(response.coverImage.url)
+        }
+      } catch (error: any) {
+        console.log(error.message)
+      }
+    }
+    loadPost()
+  }, [slug])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Main Content */}
+       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Form */}
@@ -209,15 +236,20 @@ const CreatePost = () => {
                       <X className="h-4 w-4" />
                     </Button>
                     <div className="mt-4 p-3 bg-slate-100 rounded-lg">
-                      <p className="text-sm font-medium text-slate-700">
-                        {coverImage?.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {coverImage
-                          ? (coverImage.size / 1024 / 1024).toFixed(2)
-                          : "0.00"}{" "}
-                        MB
-                      </p>
+                      {coverImage && (
+                        <>
+                          <p className="text-sm font-medium text-slate-700">
+                            {coverImage?.name ||
+                              postToUpdate?.coverImage?.publicId}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {coverImage
+                              ? (coverImage.size / 1024 / 1024).toFixed(2)
+                              : "0.00"}{" "}
+                            MB
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
@@ -316,18 +348,18 @@ const CreatePost = () => {
             {/* Action Buttons */}
             <Card>
               <CardContent className="pt-6 space-y-3">
-                <Button
-                  className="w-full"
-                  size="lg"
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                >
-                  <Save className="mr-2 h-4 w-4" />
-                  {isSubmitting ? "Publishing" : "Publish"} Blog
-                </Button>
-                <Button variant="ghost" className="w-full">
+                  <Button 
+									className="w-full" 
+									size="lg" 
+									onClick={handleSubmit}
+									disabled={isSubmitting}
+									>
+                    <Save className="mr-2 h-4 w-4" />
+                    {isSubmitting ? "Updating" : "Update"} Blog
+                  </Button>
+                {/* <Button variant="ghost" className="w-full">
                   Discard
-                </Button>
+                </Button> */}
               </CardContent>
             </Card>
           </div>
@@ -337,4 +369,4 @@ const CreatePost = () => {
   )
 }
 
-export default CreatePost
+export default UpdatePost

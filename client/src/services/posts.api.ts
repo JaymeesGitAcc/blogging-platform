@@ -1,25 +1,21 @@
 import { api } from "@/lib/api"
 
-const getAllPosts = async () => {
-  try {
-    const response = await api.get("/api/posts")
-    return response.data
-  } catch (error: any) {
-    console.error(error.message)
-    return { data: [] }
-  }
+const getAllPosts = async (
+  page: number = 1,
+  sortBy: string = "recent",
+  limit = 6,
+) => {
+  const response = await api.get(
+    `/api/posts?page=${page}&sort=${sortBy}&limit=${limit}`,
+  )
+  return response.data
 }
 
 const getPostBySlug = async (slug: string | undefined) => {
-  try {
-    if (!slug) return null
-    const response = await api.get(`/api/posts/${slug}`)
-    const { data } = response.data
-    return data
-  } catch (error: any) {
-    console.log("getPostBySlug Error ::", error.message)
-    return null
-  }
+  if (!slug) return null
+  const response = await api.get(`/api/posts/${slug}`)
+  const { data } = response.data
+  return data
 }
 
 const togglePostLike = async (postId: string | undefined) => {
@@ -42,4 +38,24 @@ const createPost = async (payload: FormData) => {
   return res.data
 }
 
-export { getPostBySlug, togglePostLike, getAllPosts, createPost }
+const updatePost = async (id: string | undefined, payload: FormData) => {
+  const res = await api.put(`/api/posts/${id}`, payload, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  })
+  return res.data
+}
+
+const deletePost = async (postId: string | undefined) => {
+  return await api.delete(`/api/posts/${postId}`)
+}
+
+export {
+  getPostBySlug,
+  togglePostLike,
+  getAllPosts,
+  createPost,
+  deletePost,
+  updatePost,
+}
