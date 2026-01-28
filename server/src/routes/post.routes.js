@@ -7,14 +7,14 @@ import {
 	toggleLikePost,
 	updatePost,
 } from "../controllers/post.controller.js"
-import { protect } from "../middlewares/auth.middleware.js"
+import { optionalAuth, protect } from "../middlewares/auth.middleware.js"
 import { authorizeRoles } from "../middlewares/role.middleware.js"
 import upload from "../middlewares/multer.middleware.js"
 
 const router = express.Router()
 
 router.get("/", getPublishedPosts)
-router.get("/:slug", getPostBySlug)
+router.get("/:slug",optionalAuth, getPostBySlug)
 
 router.post(
 	"/",

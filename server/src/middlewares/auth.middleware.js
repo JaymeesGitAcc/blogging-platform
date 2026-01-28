@@ -24,4 +24,28 @@ const protect = async (req, res, next) => {
 	}
 }
 
-export { protect }
+const optionalAuth = async (req, res, next) => {
+	try {
+    let token
+	if (
+		req.headers.authorization &&
+		req.headers.authorization.startsWith("Bearer")
+	) {
+		token = req.headers.authorization.split(" ")[1]
+	}
+
+    if (!token) return next()
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const user = await User.findById(decoded.id).select("_id role")
+
+    if (user) req.user = user
+
+    next()
+  } catch (err) {
+    next()
+  }
+
+}
+
+export { protect, optionalAuth }

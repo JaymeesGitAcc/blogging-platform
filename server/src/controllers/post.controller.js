@@ -12,12 +12,107 @@ const generateExcerpt = (content, length = 150) => {
     : content
 }
 
-const getPublishedPosts = async (_, res) => {
+const getPublishedPosts = async (req, res) => {
   try {
-    const posts = await Post.find({ status: "published", isDeleted: false })
-      .populate("author", "name email")
-      .sort({ createdAt: -1 })
-    return sendSuccess(res, "Posts Fetched Successfully", 200, posts)
+    const sortBy = req.query.sort || "recent"
+    const page = Number(req.query.page) || 1
+    const limit = Number(req.query.limit) || 6
+    const skip = (page - 1) * limit
+
+    // 🔀 Sorting Logic
+    let sortStage = { createdAt: -1 } // default recent
+
+    if (sortBy === "popular") {
+      sortStage = { likesCount: -1, createdAt: -1 }
+    } else if (sortBy === "oldest") {
+      sortStage = { createdAt: 1 }
+    } else if (sortBy === "trending") {
+      sortStage = { trendingScore: -1 }
+    }
+
+    const posts = await Post.aggregate([
+      // 👤 Join Author
+      {
+        $lookup: {
+          from: "users",
+          localField: "author",
+          foreignField: "_id",
+          as: "author",
+        },
+      },
+      { $unwind: "$author" },
+
+      // 💬 Join Comments to count them
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "post",
+          as: "comments",
+        },
+      },
+
+      // ❤️ Likes count & 💬 Comments count
+      {
+        $addFields: {
+          likesCount: { $size: "$likes" },
+          commentsCount: { $size: "$comments" },
+        },
+      },
+
+      // 🕒 Calculate age in hours
+      {
+        $addFields: {
+          hoursSinceCreated: {
+            $divide: [
+              { $subtract: [new Date(), "$createdAt"] },
+              1000 * 60 * 60,
+            ],
+          },
+        },
+      },
+
+      // 🔥 Trending score formula
+      {
+        $addFields: {
+          trendingScore: {
+            $divide: [
+              {
+                $add: [
+                  { $multiply: ["$likesCount", 3] },
+                  { $multiply: ["$commentsCount", 2] },
+                  { $multiply: ["$views", 0.5] },
+                ],
+              },
+              { $add: ["$hoursSinceCreated", 2] },
+            ],
+          },
+        },
+      },
+
+      // 🧹 Remove heavy comments array
+      {
+        $project: {
+          comments: 0,
+        },
+      },
+
+      // 🔀 Apply Sorting
+      { $sort: sortStage },
+
+      // 📄 Pagination
+      { $skip: skip },
+      { $limit: limit },
+    ])
+
+    const total = await Post.countDocuments()
+
+    return sendSuccess(res, "Posts fetched", 200, posts, {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    })
   } catch (error) {
     return sendError(res, error.message, 500)
   }
@@ -32,8 +127,10 @@ const getPostBySlug = async (req, res) => {
 
     if (!post) return sendError(res, "Post not found", 404)
 
-    post.views += 1
-    await post.save()
+    if (req.user && post.author._id.toString() !== req.user._id.toString()) {
+      post.views += 1
+      await post.save()
+    }
 
     return sendSuccess(res, "Post fetched successfully", 200, post)
   } catch (error) {
@@ -72,7 +169,6 @@ const createPost = async (req, res) => {
       tags = JSON.parse(req.body.tags)
       tags = [...new Set(tags.map((tag) => tag.trim().toLowerCase()))]
     }
-
 
     const post = await Post.create({
       title,
