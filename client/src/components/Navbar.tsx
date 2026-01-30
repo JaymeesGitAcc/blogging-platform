@@ -8,6 +8,7 @@ import {
   Home,
   User,
   Pen,
+  BarChart2,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Avatar, AvatarFallback } from "./ui/avatar"
@@ -108,11 +109,15 @@ const Navbar = () => {
                       <span>Write blog</span>
                     </DropdownMenuItem>
                   </Link>
-                  {/* <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem> */}
                   <DropdownMenuSeparator />
+                   {user?.role == "admin" && (
+                    <Link to="/admin">
+                      <DropdownMenuItem>
+                        <BarChart2 className="mr-2 h-4 w-4" />
+                        <span>Admin Dashboard</span>
+                      </DropdownMenuItem>
+                    </Link>
+                  )}
                   <DropdownMenuItem onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Logout</span>

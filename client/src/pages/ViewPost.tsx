@@ -265,18 +265,18 @@ const ViewPost = () => {
 
       {/* Post Image */}
 
-      <div className="max-w-4xl mx-auto px-6 -mt-8 mb-12">
-        <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
-          {post?.coverImage?.url && (
+      {post?.coverImage?.url ? (
+        <div className="max-w-4xl mx-auto px-6 -mt-8 mb-12">
+          <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
             <img
               src={post.coverImage.url}
               alt={post.title}
               className="w-full h-auto object-cover"
               style={{ maxHeight: "500px" }}
             />
-          )}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 pb-16">
@@ -294,7 +294,7 @@ const ViewPost = () => {
               }}
             />
           </CardContent>
-           <CardContent>
+          <CardContent>
             <div className="flex justify-end">
               {isAuthor ? (
                 <div className="flex items-center gap-2">

@@ -97,7 +97,7 @@ const CreatePost = () => {
         console.log(response)
 
         setTimeout(() => {
-          navigate(`/${response.data.slug}`)
+          navigate(`/posts/${response.data.slug}`)
         }, 500)
       }
     } catch (error: any) {

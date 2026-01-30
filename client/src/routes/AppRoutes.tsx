@@ -8,6 +8,7 @@ import CreatePost from "@/pages/CreatePost"
 import UpdatePost from "@/pages/UpdatePost"
 import AllPosts from "@/pages/AllPosts"
 import Layout from "@/layouts/Layout"
+import AdminDashboard from "@/pages/AdminDashboard"
 
 const AppRoutes = () => {
   return (
@@ -35,6 +36,9 @@ const AppRoutes = () => {
               </ProtectedRoute>
             }
           />
+        </Route>
+        <Route path="/admin">
+          <Route index element={<AdminDashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>
