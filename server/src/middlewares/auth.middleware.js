@@ -12,8 +12,13 @@ const protect = async (req, res, next) => {
 	try {
 		// Verify token
 		const decoded = jwt.verify(token, process.env.JWT_SECRET)
+		const user = await User.findById(decoded.id).select("-password")
+		if (user?.status !== "active") {
+      		return sendError(res, "Your account is blocked", 403)
+    	}
 		// Attach user to request object (excluding password)
-		req.user = await User.findById(decoded.id).select("-password")
+		req.user = user
+
 		next()
 	} catch (error) {
 		return res.status(401).json({ message: "Not authorized, token failed" })
