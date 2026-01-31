@@ -1,4 +1,5 @@
 import Post from "../models/post.model.js"
+import Comment from "../models/comment.model.js"
 import slugify from "slugify"
 import {
   deleteFromCloudinary,
@@ -14,13 +15,14 @@ const generateExcerpt = (content, length = 150) => {
 
 const getPublishedPosts = async (req, res) => {
   try {
+    const { search, tag } = req.query
     const sortBy = req.query.sort || "recent"
     const page = Number(req.query.page) || 1
     const limit = Number(req.query.limit) || 6
     const skip = (page - 1) * limit
-
+    
     // 🔀 Sorting Logic
-    let sortStage = { createdAt: -1 } // default recent
+    let sortStage = { createdAt: -1 }
 
     if (sortBy === "popular") {
       sortStage = { likesCount: -1, createdAt: -1 }
@@ -31,6 +33,19 @@ const getPublishedPosts = async (req, res) => {
     }
 
     const posts = await Post.aggregate([
+      {
+        $match: {
+          isDeleted: false,
+          status: "published",
+          ...(search && {
+            $or: [
+              { title: { $regex: search, $options: "i" } },
+              { content: { $regex: search, $options: "i" } },
+            ],
+          }),
+          ...(tag && { tags: tag }),
+        },
+      },
       // 👤 Join Author
       {
         $lookup: {
@@ -260,7 +275,7 @@ const deletePost = async (req, res) => {
     }
 
     await post.deleteOne()
-
+    await Comment.deleteMany({post: post._id})
     return sendSuccess(res, "Post deleted sucessfully")
   } catch (error) {
     return sendError(res, error.message, 500)
