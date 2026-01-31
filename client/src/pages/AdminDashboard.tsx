@@ -34,6 +34,7 @@ import { getAdminDashboardStats } from "@/services/admin.api"
 import { formatDate } from "@/utils/formatDate"
 import { useNavigate } from "react-router-dom"
 import ManagePosts from "@/components/admin/ManagePosts"
+import ManageUsers from "@/components/admin/ManageUsers"
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState<StatsProps | null>(null)
@@ -65,9 +66,9 @@ const AdminDashboard = () => {
     </div>
   )
 
-  const ManagePostsPlaceholder = () => (
-      <ManagePosts />
-  )
+  // const ManagePostsPlaceholder = () => (
+  //     <ManagePosts />
+  // )
 
   const SettingsPlaceholder = () => (
     <div className="flex items-center justify-center h-96">
@@ -337,9 +338,9 @@ const AdminDashboard = () => {
       case "dashboard":
         return <DashboardContent />
       case "users":
-        return <ManageUsersPlaceholder />
+        return <ManageUsers />
       case "posts":
-        return <ManagePostsPlaceholder />
+        return <ManagePosts />
       case "settings":
         return <SettingsPlaceholder />
       default:

@@ -10,6 +10,7 @@ import { deletePost } from "@/services/posts.api"
 import DeleteAlert from "../DeleteAlert"
 import { toast } from "sonner"
 import PostsDataTable from "../PostsDataTable"
+import type { Users } from "@/types/admin.types"
 
 const shortenTitle = (title = "", length = 30) => {
   return title.length > length ? title.substring(0, length) + "..." : title

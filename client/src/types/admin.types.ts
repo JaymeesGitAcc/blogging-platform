@@ -38,6 +38,17 @@ export interface StatsProps {
       name: string
       email: string
       createdAt: string
-    }
+    },
   ]
+}
+
+export type Users = {
+  _id: string
+  name: string
+  email: string
+  role: "user" | "admin"
+  status: "active" | "blocked"
+  owner: boolean
+  createdAt: string
+  postsCount: number
 }
