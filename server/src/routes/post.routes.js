@@ -19,7 +19,7 @@ router.get("/:slug",optionalAuth, getPostBySlug)
 router.post(
 	"/",
 	protect,
-	authorizeRoles("author", "admin"),
+	authorizeRoles("user", "admin"),
 	upload.fields([
 		{
 			name: "coverImage",
@@ -32,7 +32,7 @@ router.post(
 router.put(
 	"/:id",
 	protect,
-	authorizeRoles("author", "admin"),
+	authorizeRoles("user", "admin"),
 	upload.fields([
 		{
 			name: "coverImage",
@@ -42,7 +42,7 @@ router.put(
 	updatePost,
 )
 
-router.delete("/:id", protect, authorizeRoles("admin", "author"), deletePost)
+router.delete("/:id", protect, authorizeRoles("admin", "user"), deletePost)
 router.put("/:id/like", protect, toggleLikePost)
 
 export default router

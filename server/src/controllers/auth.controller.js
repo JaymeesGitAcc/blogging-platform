@@ -17,7 +17,7 @@ const registerUser = async (req, res) => {
 		if (userExists) return sendError(res, "User already exists")
 
 		// Determine role
-		let userRole = "reader" // default
+		let userRole = "user" // default
 		if (req.user && req.user.role === "admin" && role) {
 			// Admin can set a custom role
 			userRole = role
