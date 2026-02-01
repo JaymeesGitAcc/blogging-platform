@@ -20,7 +20,7 @@ const getPublishedPosts = async (req, res) => {
     const page = Number(req.query.page) || 1
     const limit = Number(req.query.limit) || 6
     const skip = (page - 1) * limit
-    
+
     // 🔀 Sorting Logic
     let sortStage = { createdAt: -1 }
 
@@ -275,7 +275,7 @@ const deletePost = async (req, res) => {
     }
 
     await post.deleteOne()
-    await Comment.deleteMany({post: post._id})
+    await Comment.deleteMany({ post: post._id })
     return sendSuccess(res, "Post deleted sucessfully")
   } catch (error) {
     return sendError(res, error.message, 500)
@@ -310,6 +310,30 @@ const toggleLikePost = async (req, res) => {
   }
 }
 
+const getRelatedPosts = async (req, res) => {
+  try {
+    const id = String(req.params.id)
+    const currentPost = await Post.findById(id)
+
+    if (!currentPost) return sendError(res, "Post not found", 404)
+
+    const relatedPosts = await Post.find({
+      _id: { $ne: currentPost._id },
+      tags: { $in: currentPost.tags },
+      status: "published",
+      isDeleted: false,
+    })
+      .sort({ createdAt: -1 })
+      .limit(3)
+      .select("title slug coverImage createdAt")
+      .populate("author", "name")
+
+    return sendSuccess(res, "Related posts fetched", 200, relatedPosts)
+  } catch (error) {
+    return sendError(res, error.message, 500)
+  }
+}
+
 export {
   createPost,
   updatePost,
@@ -317,4 +341,5 @@ export {
   getPublishedPosts,
   getPostBySlug,
   toggleLikePost,
+  getRelatedPosts,
 }

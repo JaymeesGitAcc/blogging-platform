@@ -4,6 +4,7 @@ import {
 	deletePost,
 	getPostBySlug,
 	getPublishedPosts,
+	getRelatedPosts,
 	toggleLikePost,
 	updatePost,
 } from "../controllers/post.controller.js"
@@ -44,5 +45,7 @@ router.put(
 
 router.delete("/:id", protect, authorizeRoles("admin", "user"), deletePost)
 router.put("/:id/like", protect, toggleLikePost)
+
+router.get("/related/:id", getRelatedPosts)
 
 export default router
