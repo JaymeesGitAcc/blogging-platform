@@ -42,7 +42,7 @@ const ViewPost = () => {
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(false)
   const [totalComments, setTotalComments] = useState(0)
-  const [totalPages, setTotalPages] = useState(1)
+  const [_totalPages, setTotalPages] = useState(1)
   const [removedComment, setRemovedComment] = useState<Comment | null>(null)
   const [relatedPosts, setRelatedPosts] = useState<Post[]>([])
   const { slug } = useParams()
