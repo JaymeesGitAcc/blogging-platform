@@ -51,24 +51,23 @@ const Home = () => {
       {/* Hero Section */}
       <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <Badge className="mb-6 px-4 py-2 text-sm">
+          <Badge className="mb-6 px-4 py-2 text-sm bg-[#1A1F36]">
             <Sparkles className="h-3 w-3 mr-2 inline" />
             Your Story, Your Way
           </Badge>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-slate-900 mb-6 leading-tight">
-            Write. Share. Inspire.
+          <h1 className="text-5xl text-[#1A1F36] md:text-7xl font-bold mb-6 leading-tight">
+            Write your Story.
           </h1>
 
           <p className="text-xl md:text-2xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-            A beautiful platform to share your thoughts with the world. Create
-            stunning blog posts in minutes.
+            A clean, straightforward space to write and publish. That's it.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button
               size="lg"
-              className="text-lg px-8 group"
+              className="text-lg px-8 group bg-[#1A1F36] hover:bg-[#252D45]"
               onClick={() => {
                 if (user) navigate("/create")
                 else navigate("/login")
@@ -77,7 +76,9 @@ const Home = () => {
               Start Writing
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8">
+            <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => {
+              navigate("/posts")
+            }}>
               Explore Blogs
             </Button>
           </div>
@@ -88,7 +89,7 @@ const Home = () => {
       <section className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-[#1A1F36] mb-4">
               Everything You Need
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
@@ -153,7 +154,7 @@ const Home = () => {
       <section className="py-20 px-6 bg-gradient-to-b from-white to-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-[#1A1F36] mb-4">
               Trending Stories
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
@@ -193,7 +194,7 @@ const Home = () => {
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-[#1A1F36] mb-4">
               Simple to Get Started
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
@@ -203,30 +204,36 @@ const Home = () => {
 
           <div className="grid md:grid-cols-3 gap-12">
             <div className="text-center">
-              <div className="bg-gradient-to-r from-primary to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-6">
+              <div className="bg-[#1A1F36] text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-6">
                 1
               </div>
-              <h3 className="text-2xl font-bold mb-3">Create Account</h3>
+              <h3 className="text-2xl font-bold mb-3 text-[#1A1F36]">
+                Create Account
+              </h3>
               <p className="text-slate-600">
                 Sign up in seconds and start your blogging journey today.
               </p>
             </div>
 
             <div className="text-center">
-              <div className="bg-gradient-to-r from-primary to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-6">
+              <div className="bg-[#1A1F36] text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-6">
                 2
               </div>
-              <h3 className="text-2xl font-bold mb-3">Write Your Story</h3>
+              <h3 className="text-2xl font-bold mb-3 text-[#1A1F36]">
+                Write Your Story
+              </h3>
               <p className="text-slate-600">
                 Use our beautiful editor to craft your perfect blog post.
               </p>
             </div>
 
             <div className="text-center">
-              <div className="bg-gradient-to-r from-primary to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-6">
+              <div className="bg-[#1A1F36] to-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold mx-auto mb-6">
                 3
               </div>
-              <h3 className="text-2xl font-bold mb-3">Share & Grow</h3>
+              <h3 className="text-2xl font-bold mb-3 text-[#1A1F36]">
+                Share & Grow
+              </h3>
               <p className="text-slate-600">
                 Publish your post and watch your audience grow.
               </p>
@@ -238,17 +245,25 @@ const Home = () => {
       {/* CTA Section */}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
-          <Card className="bg-gradient-to-r from-primary to-purple-600 text-white border-0 shadow-2xl">
+          <Card className="bg-[#1A1F36] shadow-2xl">
             <CardContent className="pt-12 pb-12 text-center">
-              <Star className="h-12 w-12 mx-auto mb-6 opacity-80" />
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <Star className="h-12 w-12 mx-auto mb-6 opacity-80 text-white/90" />
+              <h2 className="text-3xl text-white/90 md:text-4xl font-bold mb-4">
                 Ready to Share Your Story?
               </h2>
               <p className="text-lg mb-8 text-white/90 max-w-2xl mx-auto">
                 Join thousands of writers who trust BlogHub to share their ideas
                 with the world.
               </p>
-              <Button size="lg" variant="secondary" className="text-lg px-8">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="text-lg px-8"
+                onClick={() => {
+                  if (user) navigate("/create")
+                  else navigate("/login")
+                }}
+              >
                 Start Writing for Free
               </Button>
             </CardContent>

@@ -11,9 +11,9 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Mail, Lock, PenLine } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock, Feather } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, Navigate, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 const LoginPage = () => {
@@ -23,7 +23,7 @@ const LoginPage = () => {
 	const [error, setError] = useState("")
 	const [loading, setLoading] = useState(false)
 
-	const { login } = useAuth()
+	const { login, user } = useAuth()
 	const navigate = useNavigate()
 
 	const handleSubmit = async (e: FormEvent) => {
@@ -55,13 +55,16 @@ const LoginPage = () => {
 		}
 	}
 
+	if(user)
+		return <Navigate to="/" replace/>
+
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
 			<Card className="w-full max-w-md shadow-lg">
 				<CardHeader className="space-y-1">
 					<div className="flex items-center justify-center mb-4">
-						<div className="bg-primary rounded-full p-3">
-							<PenLine className="h-6 w-6 text-primary-foreground" />
+						<div className="bg-[#1A1F36] rounded-full p-3">
+							<Feather className="h-6 w-6 text-primary-foreground" />
 						</div>
 					</div>
 					<CardTitle className="text-2xl font-bold text-center">
@@ -123,15 +126,15 @@ const LoginPage = () => {
 							</div>
 						</div>
 
-						<div className="flex items-center justify-between text-sm">
+						{/* <div className="flex items-center justify-between text-sm">
 							<a href="#" className="text-primary hover:underline">
 								Forgot password?
 							</a>
-						</div>
+						</div> */}
 					</CardContent>
 
-					<CardFooter className="flex flex-col space-y-4">
-						<Button type="submit" className="w-full mt-4" disabled={loading}>
+					<CardFooter className="flex flex-col space-y-4 mt-4">
+						<Button type="submit" className="w-full mt-4 bg-[#1A1F36] hover:bg-[#252D45]" disabled={loading}>
 							{loading ? "Signing in..." : "Sign in"}
 						</Button>
 

@@ -1,6 +1,7 @@
 import BlogNotFound from "@/components/BlogNotFound"
 import CommentsSection from "@/components/CommentsSection"
 import DeleteAlert from "@/components/DeleteAlert"
+import RelatedPostsSection from "@/components/RelatedPostsSection"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -9,6 +10,7 @@ import { getCommentsByPost, updateComment } from "@/services/comments.api"
 import {
   deletePost,
   getPostBySlug,
+  getRelatedPosts,
   togglePostLike,
 } from "@/services/posts.api.ts"
 import type { Comment } from "@/types/comment.types"
@@ -42,10 +44,12 @@ const ViewPost = () => {
   const [totalComments, setTotalComments] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [removedComment, setRemovedComment] = useState<Comment | null>(null)
+  const [relatedPosts, setRelatedPosts] = useState<Post[]>([])
   const { slug } = useParams()
   const { user } = useAuth()
   const navigate = useNavigate()
   const isAuthor = user?._id === post?.author?._id
+  const isAdmin = user?.role === "admin"
   const limit = 5
 
   const handleLike = async () => {
@@ -97,8 +101,6 @@ const ViewPost = () => {
     setTotalComments((pre) => pre + 1)
   }
 
-  // console.log(comments);
-
   const handleRemoveComment = (commentId: string) => {
     setComments((prev) => prev.filter((c) => c._id !== commentId))
     setTotalComments((c) => c - 1)
@@ -139,13 +141,21 @@ const ViewPost = () => {
     }
   }
 
+  const loadRelatedPosts = async (id: string) => {
+    try {
+      const res = await getRelatedPosts(id)
+      const { data } = res
+      setRelatedPosts(data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const handleUpdateComment = async (id: string, content: string) => {
     try {
       const response = await updateComment(id, content)
       if (!response)
         toast.error("Something went wrong", { position: "bottom-right" })
-
-      console.log(response.data)
 
       setComments((prev) =>
         prev.map((c) => (c._id === id ? { ...c, content } : c)),
@@ -187,6 +197,7 @@ const ViewPost = () => {
     }
     // load comments on the post
     loadCommments()
+    if (post) loadRelatedPosts(post?._id)
   }, [post])
 
   if (loading) {
@@ -296,7 +307,7 @@ const ViewPost = () => {
           </CardContent>
           <CardContent>
             <div className="flex justify-end">
-              {isAuthor ? (
+              {isAuthor || isAdmin ? (
                 <div className="flex items-center gap-2">
                   <Button
                     size="sm"
@@ -404,7 +415,7 @@ const ViewPost = () => {
           </Card>
         </div>
 
-        {isAuthor ? (
+        {isAuthor || isAdmin ? (
           <DeleteAlert
             open={deleteDialogOpen}
             onOpenChange={setDeleteDialogOpen}
@@ -428,17 +439,11 @@ const ViewPost = () => {
         </div>
 
         {/* Related Posts Placeholder */}
-        {/* <Card className="mt-12 shadow-lg">
-          <CardContent className="pt-8 pb-8">
-            <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
-              <BookOpen className="h-6 w-6 text-primary" />
-              Related Posts
-            </h3>
-            <p className="text-muted-foreground">
-              Discover more great content on similar topics...
-            </p>
-          </CardContent>
-        </Card> */}
+        {relatedPosts.length ? (
+          <section>
+            <RelatedPostsSection relatedPosts={relatedPosts} />
+          </section>
+        ) : null}
       </div>
     </div>
   )

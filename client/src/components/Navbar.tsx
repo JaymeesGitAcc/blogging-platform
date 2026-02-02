@@ -9,6 +9,7 @@ import {
   User,
   Pen,
   BarChart2,
+  Feather,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { Avatar, AvatarFallback } from "./ui/avatar"
@@ -36,12 +37,14 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 group">
-            <div className="bg-gradient-to-r from-primary to-purple-600 rounded-full p-2 group-hover:scale-110 transition-transform">
-              <PenLine className="h-5 w-5 text-white" />
+            <div className="flex items-center gap-2">
+            <div className="bg-[#1A1F36] rounded-full p-2 transition-transform group-hover:scale-110">
+              <Feather className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              BlogHub
+            <span className="text-xl font-bold text-[#1A1F36]">
+              COLUMN
             </span>
+          </div>
           </a>
 
           {/* Navigation Links */}
@@ -78,7 +81,7 @@ const Navbar = () => {
                     className="relative h-10 w-10 rounded-full"
                   >
                     <Avatar className="h-10 w-10 border-2 border-primary/20">
-                      <AvatarFallback className="bg-gradient-to-r from-primary to-purple-600 text-white font-semibold">
+                      <AvatarFallback className="bg-[#1A1F36] text-white font-semibold">
                         {user.name
                           .split(" ")
                           .map((n) => n[0])
@@ -99,10 +102,12 @@ const Navbar = () => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
-                  </DropdownMenuItem>
+                  <Link to={`/profile/${user?._id}`}>
+                    <DropdownMenuItem>
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </DropdownMenuItem>
+                  </Link>
                   <Link to="/create">
                     <DropdownMenuItem>
                       <Pen className="mr-2 h-4 w-4" />
@@ -110,7 +115,7 @@ const Navbar = () => {
                     </DropdownMenuItem>
                   </Link>
                   <DropdownMenuSeparator />
-                   {user?.role == "admin" && (
+                  {user?.role == "admin" && (
                     <Link to="/admin">
                       <DropdownMenuItem>
                         <BarChart2 className="mr-2 h-4 w-4" />
@@ -126,7 +131,7 @@ const Navbar = () => {
               </DropdownMenu>
             ) : (
               <Link to="/login">
-                <Button className="group">
+                <Button className="group bg-[#1A1F36] hover:bg-[#252D45]">
                   <LogIn className="mr-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                   Login
                 </Button>

@@ -11,8 +11,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Mail, Lock, User, PenLine } from "lucide-react"
-import { api } from "@/lib/api"
+import { Eye, EyeOff, Mail, Lock, User, Feather } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import { registerUser } from "@/services/auth.api"
 import { toast } from "sonner"
@@ -77,11 +76,11 @@ export default function Register() {
 			<Card className="w-full max-w-md shadow-lg">
 				<CardHeader className="space-y-1">
 					<div className="flex items-center justify-center mb-4">
-						<div className="bg-primary rounded-full p-3">
-							<PenLine className="h-6 w-6 text-primary-foreground" />
+						<div className="bg-[#1A1F36] rounded-full p-3">
+							<Feather className="h-6 w-6 text-primary-foreground" />
 						</div>
 					</div>
-					<CardTitle className="text-2xl font-bold text-center">
+					<CardTitle className="text-2xl font-bold text-[#1A1F36] text-center">
 						Create an account
 					</CardTitle>
 					<CardDescription className="text-center">
@@ -168,7 +167,7 @@ export default function Register() {
 					<CardFooter className="flex flex-col space-y-4">
 						<Button
 							onClick={handleSubmit}
-							className="w-full mt-4"
+							className="w-full mt-4 bg-[#1A1F36] hover:bg-[#252D45]"
 							disabled={loading}
 						>
 							{loading ? "Creating account..." : "Create account"}

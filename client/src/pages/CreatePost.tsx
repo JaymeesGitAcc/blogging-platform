@@ -30,6 +30,7 @@ const CreatePost = () => {
   const [coverImage, setCoverImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
   const navigate = useNavigate()
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,8 +95,9 @@ const CreatePost = () => {
             ? "Blog Published successfully"
             : "Blog saved as draft"
         toast.success(message, { position: "top-right" })
-        console.log(response)
+      }
 
+      if (status === "published") {
         setTimeout(() => {
           navigate(`/posts/${response.data.slug}`)
         }, 500)
@@ -107,6 +109,15 @@ const CreatePost = () => {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleReset = () => {
+    setTitle("")
+    setContent("")
+    setCoverImage(null)
+    setImagePreview(null)
+    setStatus("published")
+    setTags("")
   }
 
   return (
@@ -240,7 +251,7 @@ const CreatePost = () => {
                   <Label htmlFor="status" className="text-base">
                     Status *
                   </Label>
-                  <Select defaultValue={status} onValueChange={setStatus}>
+                  <Select value={status} onValueChange={setStatus}>
                     <SelectTrigger id="status" className="h-11">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -325,7 +336,11 @@ const CreatePost = () => {
                   <Save className="mr-2 h-4 w-4" />
                   {isSubmitting ? "Publishing" : "Publish"} Blog
                 </Button>
-                <Button variant="ghost" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleReset}
+                >
                   Discard
                 </Button>
               </CardContent>

@@ -20,10 +20,7 @@ import {
 import type { Comment } from "@/types/comment.types"
 import { useState } from "react"
 import { toast } from "sonner"
-import {
-  addComment,
-  deleteComment,
-} from "@/services/comments.api"
+import { addComment, deleteComment } from "@/services/comments.api"
 import { useAuth } from "@/contexts/AuthContext"
 import DeleteAlert from "./DeleteAlert"
 import {
@@ -231,11 +228,13 @@ function CommentsSection({
 
           {/* Comments List */}
           <div className="space-y-6 mt-6">
-            <div className="flex flex-end">
-              <div className="text-sm text-gray-700">
-                Showing {comments.length} of {total}
+            {total ? (
+              <div className="flex flex-end">
+                <div className="text-sm text-gray-700">
+                  Showing {comments.length} of {total}
+                </div>
               </div>
-            </div>
+            ) : null}
             {total === 0 ? (
               <div className="text-center py-12">
                 <MessageSquare className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />

@@ -19,7 +19,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	const [user, setUser] = useState<User | null>(null)
 
 	const storedUser = localStorage.getItem("user")
-
+	
 	// Load user from localStorage on mount
 	useEffect(() => {
 	    if (storedUser) {

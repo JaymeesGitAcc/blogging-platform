@@ -78,7 +78,7 @@ const ManageUsers = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const [limit, setLimit] = useState(5)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const hasNext = currentPage < totalPages
   const hasPrev = currentPage > 1
 

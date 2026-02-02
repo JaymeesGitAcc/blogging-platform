@@ -1,7 +1,28 @@
-import { flexRender, getCoreRowModel, getPaginationRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
+import {
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+  type ColumnDef,
+} from "@tanstack/react-table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table"
 import { Button } from "./ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select"
+import NoDataPlaceholder from "./NoDataPlaceholder"
+import TableSkeleton from "./TableSkeleton"
 
 interface PostsDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -12,6 +33,7 @@ interface PostsDataTableProps<TData, TValue> {
   onPrev?: () => void
   rowsPerPage?: string
   handleChange?: (value: string) => void
+  loading?: boolean
 }
 
 function PostsDataTable<TData, TValue>({
@@ -23,6 +45,7 @@ function PostsDataTable<TData, TValue>({
   onPrev,
   rowsPerPage = "5",
   handleChange,
+  loading,
 }: PostsDataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -30,6 +53,8 @@ function PostsDataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   })
+
+  if (loading) return <TableSkeleton rows={10} />
 
   return (
     <div className="overflow-hidden rounded-md border bg-white">
@@ -67,11 +92,9 @@ function PostsDataTable<TData, TValue>({
               </TableRow>
             ))
           ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
+            <TableCell colSpan={columns.length} className="h-24 text-center">
+              <NoDataPlaceholder />
+            </TableCell>
           )}
         </TableBody>
       </Table>
@@ -93,8 +116,7 @@ function PostsDataTable<TData, TValue>({
           >
             Next
           </Button>
-          <Select value={rowsPerPage} onValueChange={handleChange} 
-          >
+          <Select value={rowsPerPage} onValueChange={handleChange}>
             <SelectTrigger className="w-24">
               <SelectValue />
             </SelectTrigger>

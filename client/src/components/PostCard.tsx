@@ -70,7 +70,7 @@ const PostCard = ({
 
       <CardHeader>
         <CardTitle className="line-clamp-2 hover:text-primary transition-colors cursor-pointer text-xl">
-          {title}
+          <Link to={`/posts/${slug}`}>{title}</Link>
         </CardTitle>
         <CardDescription className="line-clamp-2 text-base">
           {excerpt}

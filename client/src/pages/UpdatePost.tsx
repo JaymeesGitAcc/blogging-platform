@@ -16,12 +16,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { PenLine, Upload, Save, ImagePlus, Tag, X} from "lucide-react"
-import BackButton from "@/components/BackButton"
+import { Upload, Save, ImagePlus, Tag, X} from "lucide-react"
 import { useEffect, useState } from "react"
 import { getPostBySlug, updatePost } from "@/services/posts.api"
 import { toast } from "sonner"
-import { useNavigate, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import type { Post } from "@/types/post.types"
 
 const UpdatePost = () => {
@@ -34,7 +33,6 @@ const UpdatePost = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [postToUpdate, setPostToUpdate] = useState<Post | null>(null)
-  const navigate = useNavigate()
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -94,10 +92,6 @@ const UpdatePost = () => {
 
       if (response) {
         toast.success("Blog Updated Successfully", { position: "top-right" })
-
-        setTimeout(() => {
-          navigate(`/${response.data.slug}`)
-        }, 500)
       }
     } catch (error: any) {
       toast.error("Failed to update blog", {
@@ -112,11 +106,12 @@ const UpdatePost = () => {
     const loadPost = async () => {
       try {
         const response = await getPostBySlug(slug)
-				setPostToUpdate(response)
         if (response) {
+          setPostToUpdate(response)
           setTitle(response.title)
           setContent(response.content)
           setStatus(response.status)
+          
           if (response.tags && response.tags.length > 0) {
             let str = ""
             for (let tag of response.tags) {
@@ -272,7 +267,7 @@ const UpdatePost = () => {
                   <Label htmlFor="status" className="text-base">
                     Status *
                   </Label>
-                  <Select defaultValue={status} onValueChange={setStatus}>
+                  <Select value={status} onValueChange={setStatus}>
                     <SelectTrigger id="status" className="h-11">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
@@ -357,9 +352,6 @@ const UpdatePost = () => {
                     <Save className="mr-2 h-4 w-4" />
                     {isSubmitting ? "Updating" : "Update"} Blog
                   </Button>
-                {/* <Button variant="ghost" className="w-full">
-                  Discard
-                </Button> */}
               </CardContent>
             </Card>
           </div>

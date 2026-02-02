@@ -9,10 +9,14 @@ import UpdatePost from "@/pages/UpdatePost"
 import AllPosts from "@/pages/AllPosts"
 import Layout from "@/layouts/Layout"
 import AdminDashboard from "@/pages/AdminDashboard"
+import UserProfile from "@/pages/UserProfile"
+import { ScrollToTop } from "@/utils/ScrollToTop"
+import AccessDenied from "@/pages/AccessDenied"
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
@@ -36,9 +40,18 @@ const AppRoutes = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="profile/:id" element={<UserProfile />} />
+          <Route path="accessdenied" element={<AccessDenied />} />
         </Route>
         <Route path="/admin">
-          <Route index element={<AdminDashboard />} />
+          <Route
+            index
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>

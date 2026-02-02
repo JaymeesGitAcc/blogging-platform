@@ -7,7 +7,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Search, ArrowRight, PenLine, SlidersHorizontal } from "lucide-react"
+import {
+  Search,
+  ArrowRight,
+  PenLine,
+  SlidersHorizontal,
+} from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import type { Post } from "@/types/post.types"
@@ -15,6 +20,7 @@ import { getAllPosts } from "@/services/posts.api"
 import PostCardSkeleton from "@/components/PostCardSkeleton"
 import { Input } from "@/components/ui/input"
 import PostCard from "@/components/PostCard"
+import NoDataPlaceholder from "@/components/NoDataPlaceholder"
 
 const AllPosts = () => {
   const [posts, setPosts] = useState<Post[]>([])
@@ -22,6 +28,8 @@ const AllPosts = () => {
   const [sortBy, setSortBy] = useState("recent")
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery)
   const navigate = useNavigate()
   const { user } = useAuth()
   const limit = 6
@@ -29,10 +37,10 @@ const AllPosts = () => {
   const loadPosts = async (pageToLoad = 1, reset = false) => {
     setIsLoading(true)
     try {
-      const res = await getAllPosts(pageToLoad, sortBy, limit)
+      const res = await getAllPosts(pageToLoad, sortBy, limit, searchQuery)
 
       if (reset) {
-        setPosts(res.data) 
+        setPosts(res.data)
       } else {
         setPosts((prev) => [...prev, ...res.data])
       }
@@ -52,9 +60,17 @@ const AllPosts = () => {
   }
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  useEffect(() => {
     setPage(1)
     loadPosts(1, true)
-  }, [sortBy])
+  }, [debouncedSearch, sortBy])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -65,7 +81,7 @@ const AllPosts = () => {
           <div className="max-w-7xl mx-auto px-6 py-6">
             <div className="md:flex items-center justify-between mb-6">
               <div>
-                <h1 className="text-4xl font-bold text-slate-900 mb-2">
+                <h1 className="text-[#1A1F36] text-4xl font-bold text-slate-900 mb-2">
                   All Blog Posts
                 </h1>
                 <p className="text-slate-600">
@@ -74,7 +90,7 @@ const AllPosts = () => {
               </div>
               <Button
                 size="lg"
-                className="group mt-4 md:mt-0"
+                className="group bg-[#1A1F36] hover:bg-[#252D45] mt-4 md:mt-0"
                 onClick={() => {
                   if (user) {
                     navigate("/create")
@@ -93,7 +109,12 @@ const AllPosts = () => {
             <div className="flex flex-col sm:flex-row gap-4 max-w-[1000px]">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input placeholder="Search posts..." className="pl-10" />
+                <Input
+                  placeholder="Search posts..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
               </div>
               <Select
                 defaultValue={sortBy}
@@ -149,7 +170,7 @@ const AllPosts = () => {
 
         {/* Load More */}
         <div className="text-center mt-12">
-          {page < totalPages && (
+          {page < totalPages && posts.length === limit && (
             <Button
               size="lg"
               variant="outline"
@@ -160,8 +181,11 @@ const AllPosts = () => {
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           )}
+          {/* {page < totalPages && (
+          )} */}
         </div>
       </div>
+      {!posts.length && <NoDataPlaceholder />}
     </div>
   )
 }

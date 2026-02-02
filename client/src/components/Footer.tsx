@@ -1,7 +1,7 @@
 import {
-  PenLine,
   Mail,
   Heart,
+  Feather,
 } from "lucide-react"
 
 function LinkedInIcon({ className = "" }) {
@@ -72,11 +72,11 @@ const Footer = () => {
         <div className="flex flex-col items-center text-center space-y-6">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="bg-gradient-to-r from-primary to-purple-600 rounded-full p-2">
-              <PenLine className="h-5 w-5 text-white" />
+            <div className="bg-[#1A1F36] rounded-full p-2">
+              <Feather className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              BlogHub
+            <span className="text-xl font-bold text-[#1A1F36]">
+              COLUMN
             </span>
           </div>
 

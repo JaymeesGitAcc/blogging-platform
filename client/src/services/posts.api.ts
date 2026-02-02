@@ -4,9 +4,11 @@ const getAllPosts = async (
   page: number = 1,
   sortBy: string = "recent",
   limit = 6,
+  search="",
+  tag="",
 ) => {
   const response = await api.get(
-    `/api/posts?page=${page}&sort=${sortBy}&limit=${limit}`,
+    `/api/posts?search=${search}&tag=${tag}&page=${page}&sort=${sortBy}&limit=${limit}`,
   )
   return response.data
 }
@@ -21,7 +23,6 @@ const getPostBySlug = async (slug: string | undefined) => {
 const togglePostLike = async (postId: string | undefined) => {
   try {
     const response = await api.put(`/api/posts/${postId}/like`)
-    // console.log(response);
     return response.data
   } catch (error: any) {
     console.log("togglePostLike Error::", error.message)
@@ -51,6 +52,12 @@ const deletePost = async (postId: string | undefined) => {
   return await api.delete(`/api/posts/${postId}`)
 }
 
+const getRelatedPosts = async (postId: string) => {
+  if(!postId) return null
+  const res = await api.get(`/api/posts/related/${postId}`)
+  return res.data
+}
+
 export {
   getPostBySlug,
   togglePostLike,
@@ -58,4 +65,5 @@ export {
   createPost,
   deletePost,
   updatePost,
+  getRelatedPosts
 }

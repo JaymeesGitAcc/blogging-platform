@@ -21,7 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select"
-import { Circle, Rotate3D, RotateCcw } from "lucide-react"
+import TableSkeleton from "./TableSkeleton"
+import NoDataPlaceholder from "./NoDataPlaceholder"
 
 interface UsersDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -52,6 +53,9 @@ function UsersDataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   })
+
+  if (loading) return <TableSkeleton rows={10} />
+
   return (
     <div className="overflow-hidden rounded-md border bg-white">
       <Table className="bg-white">
@@ -74,39 +78,23 @@ function UsersDataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {!loading ? (
-            table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
               </TableRow>
-            )
+            ))
           ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                Loading...
-              </TableCell>
-            </TableRow>
+            <TableCell colSpan={columns.length} className="h-24 text-center">
+              <NoDataPlaceholder />
+            </TableCell>
           )}
         </TableBody>
       </Table>

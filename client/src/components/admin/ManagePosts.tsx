@@ -10,7 +10,6 @@ import { deletePost } from "@/services/posts.api"
 import DeleteAlert from "../DeleteAlert"
 import { toast } from "sonner"
 import PostsDataTable from "../PostsDataTable"
-import type { Users } from "@/types/admin.types"
 
 const shortenTitle = (title = "", length = 30) => {
   return title.length > length ? title.substring(0, length) + "..." : title
@@ -134,6 +133,7 @@ const ManagePosts = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const [limit, setLimit] = useState(5)
+  const [isLoading, setIsLoading] = useState(true)
 
   const hasNext = currentPage < totalPages
   const hasPrev = currentPage > 1
@@ -164,6 +164,7 @@ const ManagePosts = () => {
 
   useEffect(() => {
     const loadPosts = async () => {
+      setIsLoading(true)
       try {
         const res = await api.get(
           `/api/admin/posts?limit=${limit}&page=${page}`,
@@ -171,9 +172,10 @@ const ManagePosts = () => {
         setPosts(res?.data?.data)
         setTotalPages(res?.data?.meta?.totalPages)
         setCurrentPage(res?.data?.meta?.page)
-        console.log(res?.data?.meta)
       } catch (error) {
         console.log(error)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -191,6 +193,7 @@ const ManagePosts = () => {
         onPrev={handlePrev}
         rowsPerPage={String(limit)}
         handleChange={handleChangeLimit}
+        loading={isLoading}
       />
       <DeleteAlert
         onConfirm={handleDeletePost}
