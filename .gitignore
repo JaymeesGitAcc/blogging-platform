@@ -25,6 +25,9 @@ logs/
 client/build/
 client/dist/
 client/.env
+client/.env.development
+client/.env.production
+
 
 # =====================
 # OS / IDE
