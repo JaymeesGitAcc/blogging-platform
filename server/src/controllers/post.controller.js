@@ -1,11 +1,11 @@
 import Post from "../models/post.model.js"
 import Comment from "../models/comment.model.js"
-import slugify from "slugify"
 import {
   deleteFromCloudinary,
   uploadOnCloudinary,
 } from "../config/cloudinary.js"
 import { sendError, sendSuccess } from "../utils/response.js"
+import { generateUniqueSlug } from "../utils/generateUniqueSlug.js"
 
 const generateExcerpt = (content, length = 150) => {
   return content.length > length
@@ -161,7 +161,7 @@ const createPost = async (req, res) => {
     if (!title || !content)
       return sendError(res, "Title and content are required", 400)
 
-    const slug = slugify(title, { lower: true, strict: true })
+    const slug = await generateUniqueSlug(title)
     const excerpt = generateExcerpt(content)
 
     let coverImageLocalPath
@@ -208,7 +208,6 @@ const updatePost = async (req, res) => {
 
     if (!post) return sendError(res, "Post not found", 404)
 
-    // Only author or admin can edit
     if (
       post.author.toString() !== req.user._id.toString() &&
       req.user.role !== "admin"
@@ -220,7 +219,7 @@ const updatePost = async (req, res) => {
 
     if (title) {
       post.title = title
-      post.slug = slugify(title, { lower: true, strict: true })
+      post.slug = await generateUniqueSlug(title, post._id)
     }
     if (content) post.content = content
 
