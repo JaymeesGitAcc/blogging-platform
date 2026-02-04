@@ -2,13 +2,14 @@ import React, { createContext, useContext, useEffect, useState } from "react"
 import { api } from "@/lib/api"
 import type { AuthResponse, User } from "@/types/auth"
 import { toast } from "sonner"
+import { useNavigate } from "react-router-dom"
 
 interface AuthContextType {
 	user: User | null
 	isAuthenticated: boolean
 	login: (email: string, password: string) => Promise<void>
 	logout: () => void
-	hasRole: (role: "admin" | "user" | "reader") => boolean
+	hasRole: (role: "admin" | "user") => boolean
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -18,14 +19,14 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
 	const [user, setUser] = useState<User | null>(null)
 
-	const storedUser = localStorage.getItem("user")
-	
-	// Load user from localStorage on mount
+	const navigate = useNavigate()
+
 	useEffect(() => {
+		const storedUser = localStorage.getItem("user")
 	    if (storedUser) {
 			setUser(JSON.parse(storedUser))
 		}
-	}, [storedUser])
+	}, [])
 
 	// Login function
 	const login = async (email: string, password: string) => {
@@ -43,10 +44,11 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 		localStorage.removeItem("user")
 		toast.success("Logged out Successfully", { position: "bottom-right" })
 		setUser(null)
+		navigate("/")
 	}
 
 	// Role check
-	const hasRole = (role: "admin" | "user" | "reader") => {
+	const hasRole = (role: "admin" | "user") => {
 		return user?.role === role
 	}
 

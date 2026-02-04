@@ -1,4 +1,3 @@
-import Footer from "@/components/Footer"
 import PostCard from "@/components/PostCard"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -270,9 +269,6 @@ const Home = () => {
           </Card>
         </div>
       </section>
-
-      {/* Footer */}
-      <Footer />
     </div>
   )
 }

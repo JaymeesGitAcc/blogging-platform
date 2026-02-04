@@ -12,48 +12,53 @@ import AdminDashboard from "@/pages/AdminDashboard"
 import UserProfile from "@/pages/UserProfile"
 import { ScrollToTop } from "@/utils/ScrollToTop"
 import AccessDenied from "@/pages/AccessDenied"
+import NotFound from "@/pages/NotFound"
+import AuthProvider from "@/contexts/AuthContext"
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
-      <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="posts/:slug" element={<ViewPost />} />
-          <Route path="posts" element={<AllPosts />} />
-          <Route
-            path="create"
-            element={
-              <ProtectedRoute>
-                <CreatePost />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="update/:slug"
-            element={
-              <ProtectedRoute>
-                <UpdatePost />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="profile/:id" element={<UserProfile />} />
-          <Route path="accessdenied" element={<AccessDenied />} />
-        </Route>
-        <Route path="/admin">
-          <Route
-            index
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-        </Route>
-      </Routes>
+      <AuthProvider>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+            <Route path="posts/:slug" element={<ViewPost />} />
+            <Route path="posts" element={<AllPosts />} />
+            <Route
+              path="create"
+              element={
+                <ProtectedRoute>
+                  <CreatePost />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="update/:slug"
+              element={
+                <ProtectedRoute>
+                  <UpdatePost />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="profile/:id" element={<UserProfile />} />
+            <Route path="accessdenied" element={<AccessDenied />} />
+          </Route>
+          <Route path="/admin">
+            <Route
+              index
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }
