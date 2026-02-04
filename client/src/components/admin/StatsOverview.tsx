@@ -135,7 +135,7 @@ const StatsOverview = ({ stats }: StatsOverviewProps) => (
               {stats?.mostLikedPost?.title}
             </p>
             <p className="text-sm text-muted-foreground">
-              by {stats?.mostLikedPost.authorName}
+              by {stats?.mostLikedPost?.authorName}
             </p>
           </CardContent>
         </Card>
@@ -149,7 +149,7 @@ const StatsOverview = ({ stats }: StatsOverviewProps) => (
               </CardTitle>
               <Badge variant="secondary">
                 <CountUp
-                  end={stats?.mostCommentedPost.commentsCount || 0}
+                  end={stats?.mostCommentedPost?.commentsCount || 0}
                   duration={1}
                 />{" "}
                 comments
@@ -158,7 +158,7 @@ const StatsOverview = ({ stats }: StatsOverviewProps) => (
           </CardHeader>
           <CardContent>
             <p className="font-semibold text-slate-900 mb-2">
-              {stats?.mostCommentedPost.title}
+              {stats?.mostCommentedPost?.title}
             </p>
             <p className="text-sm text-muted-foreground">
               by {stats?.mostCommentedPost?.authorName}
@@ -210,17 +210,17 @@ const StatsOverview = ({ stats }: StatsOverviewProps) => (
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16 border-4 border-primary/20">
                 <AvatarFallback className="bg-gradient-to-r from-primary to-purple-600 text-white text-xl font-bold">
-                  {stats?.topAuthor.name.charAt(0)}
+                  {stats?.topAuthor?.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <p className="font-bold text-lg text-slate-900">
-                  {stats?.topAuthor.name}
+                  {stats?.topAuthor?.name}
                 </p>
                 <div className="flex items-center gap-4 mt-2 text-sm text-slate-600">
                   <div className="flex items-center gap-1">
                     <FileText className="h-4 w-4" />
-                    <span>{stats?.topAuthor.postCount} posts</span>
+                    <span>{stats?.topAuthor?.postCount} posts</span>
                   </div>
                 </div>
               </div>
@@ -246,19 +246,19 @@ const StatsOverview = ({ stats }: StatsOverviewProps) => (
                 >
                   <Avatar className="h-10 w-10">
                     <AvatarFallback className="bg-green-100 text-green-700 font-semibold">
-                      {user.name.charAt(0)}
+                      {user?.name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm text-slate-900 truncate">
-                      {user.name}
+                      {user?.name}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">
-                      {user.email}
+                      {user?.email}
                     </p>
                   </div>
                   <Badge variant="outline" className="text-xs">
-                    {formatDate(user.createdAt)}
+                    {formatDate(user?.createdAt)}
                   </Badge>
                 </div>
               ))}
