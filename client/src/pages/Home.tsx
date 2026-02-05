@@ -23,6 +23,40 @@ import {
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
+type Feature = {
+  id: string
+  icon: React.ReactNode
+  title: string
+  description: string
+}
+
+const features: Feature[] = [
+  {
+    id: "speed",
+    icon: <Zap className="h-4 h-4 md:h-7 md:w-7 text-primary" />,
+    title: "Lightning Fast",
+    description: "Start writing instantly. No setup, no hassle.",
+  },
+  {
+    id: "editor",
+    icon: <BookOpen className="h-4 h-4 md:h-7 md:w-7 text-primary" />,
+    title: "Beautiful Editor",
+    description: "Write with a clean, distraction-free interface.",
+  },
+  {
+    id: "community",
+    icon: <Users className="h-4 h-4 md:h-7 md:w-7 text-primary" />,
+    title: "Find Readers",
+    description: "Connect with an audience that loves your content.",
+  },
+  {
+    id: "analytics",
+    icon: <TrendingUp className="h-4 h-4 md:h-7 md:w-7 text-primary" />,
+    title: "Track Growth",
+    description: "See how your stories resonate with readers.",
+  },
+]
+
 const Home = () => {
   const [posts, setPosts] = useState<Post[]>([])
   const { user } = useAuth()
@@ -50,23 +84,22 @@ const Home = () => {
       {/* Hero Section */}
       <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <Badge className="mb-6 px-4 py-2 text-sm bg-[#1A1F36]">
+          <Badge className="mb-6 px-4 py-2 text-xs sm:text-sm bg-[#1A1F36]">
             <Sparkles className="h-3 w-3 mr-2 inline" />
             Your Story, Your Way
           </Badge>
 
-          <h1 className="text-5xl text-[#1A1F36] md:text-7xl font-bold mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-5xl text-[#1A1F36] md:text-7xl font-bold mb-6 leading-tight">
             Write your Story.
           </h1>
 
-          <p className="text-xl md:text-2xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed">
+          <p className="sm:text-xl md:text-2xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed">
             A clean, straightforward space to write and publish. That's it.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button
-              size="lg"
-              className="text-lg px-8 group bg-[#1A1F36] hover:bg-[#252D45]"
+              className="md:text-lg md:px-8 group bg-[#1A1F36] hover:bg-[#252D45]"
               onClick={() => {
                 if (user) navigate("/create")
                 else navigate("/login")
@@ -75,9 +108,13 @@ const Home = () => {
               Start Writing
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => {
-              navigate("/posts")
-            }}>
+            <Button
+              variant="outline"
+              className="md:text-lg md:px-8"
+              onClick={() => {
+                navigate("/posts")
+              }}
+            >
               Explore Blogs
             </Button>
           </div>
@@ -88,63 +125,32 @@ const Home = () => {
       <section className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-[#1A1F36] mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#1A1F36] mb-4">
               Everything You Need
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="sm:text-lg text-slate-600 max-w-2xl mx-auto">
               Simple, powerful tools to help you focus on what matters most -
               your writing.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <Card className="border-2 hover:border-primary/50 hover:shadow-lg transition-all">
-              <CardHeader>
-                <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl w-14 h-14 flex items-center justify-center mb-4">
-                  <Zap className="h-7 w-7 text-primary" />
-                </div>
-                <CardTitle className="text-xl">Lightning Fast</CardTitle>
-                <CardDescription className="text-base">
-                  Start writing instantly. No setup, no hassle.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-2 hover:border-primary/50 hover:shadow-lg transition-all">
-              <CardHeader>
-                <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl w-14 h-14 flex items-center justify-center mb-4">
-                  <BookOpen className="h-7 w-7 text-primary" />
-                </div>
-                <CardTitle className="text-xl">Beautiful Editor</CardTitle>
-                <CardDescription className="text-base">
-                  Write with a clean, distraction-free interface.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-2 hover:border-primary/50 hover:shadow-lg transition-all">
-              <CardHeader>
-                <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl w-14 h-14 flex items-center justify-center mb-4">
-                  <Users className="h-7 w-7 text-primary" />
-                </div>
-                <CardTitle className="text-xl">Find Readers</CardTitle>
-                <CardDescription className="text-base">
-                  Connect with an audience that loves your content.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-2 hover:border-primary/50 hover:shadow-lg transition-all">
-              <CardHeader>
-                <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-xl w-14 h-14 flex items-center justify-center mb-4">
-                  <TrendingUp className="h-7 w-7 text-primary" />
-                </div>
-                <CardTitle className="text-xl">Track Growth</CardTitle>
-                <CardDescription className="text-base">
-                  See how your stories resonate with readers.
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            {features?.map((feature) => (
+              <Card
+                key={feature.id}
+                className="border-2 hover:border-primary/50 hover:shadow-lg transition-all"
+              >
+                <CardHeader>
+                  <div className="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-md w-10 h-10 flex items-center justify-center mb-4 md:h-14 md:w-14 rounded-xl">
+                    {feature.icon}
+                  </div>
+                  <CardTitle className="text-lg md:text-xl">{feature.title}</CardTitle>
+                  <CardDescription className="md:text-base">
+                    {feature.description}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -153,10 +159,10 @@ const Home = () => {
       <section className="py-20 px-6 bg-gradient-to-b from-white to-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-[#1A1F36] mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#1A1F36] mb-4">
               Trending Stories
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="md:text-lg text-slate-600 max-w-2xl mx-auto">
               Discover the latest posts from our community of writers.
             </p>
           </div>
@@ -193,10 +199,10 @@ const Home = () => {
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-[#1A1F36] mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#1A1F36] mb-4">
               Simple to Get Started
             </h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            <p className="md:text-lg text-slate-600 max-w-2xl mx-auto">
               Three easy steps to share your story with the world.
             </p>
           </div>
@@ -247,17 +253,16 @@ const Home = () => {
           <Card className="bg-[#1A1F36] shadow-2xl">
             <CardContent className="pt-12 pb-12 text-center">
               <Star className="h-12 w-12 mx-auto mb-6 opacity-80 text-white/90" />
-              <h2 className="text-3xl text-white/90 md:text-4xl font-bold mb-4">
+              <h2 className="text-2xl sm:text-3xl text-white/90 md:text-4xl font-bold mb-4">
                 Ready to Share Your Story?
               </h2>
-              <p className="text-lg mb-8 text-white/90 max-w-2xl mx-auto">
+              <p className="text-sm md:text-lg mb-8 text-white/90 max-w-2xl mx-auto">
                 Join thousands of writers who trust BlogHub to share their ideas
                 with the world.
               </p>
               <Button
-                size="lg"
                 variant="secondary"
-                className="text-lg px-8"
+                className="md:text-lg px-8"
                 onClick={() => {
                   if (user) navigate("/create")
                   else navigate("/login")

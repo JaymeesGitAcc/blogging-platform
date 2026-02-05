@@ -214,7 +214,7 @@ function CommentsSection({
             />
             <div className="flex justify-end">
               <Button
-                className="group"
+                className="group bg-[#1A1F36] hover:bg-[#252D45]"
                 onClick={handleSubmitComment}
                 disabled={isSubmitting}
               >

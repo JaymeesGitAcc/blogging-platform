@@ -225,7 +225,7 @@ const ViewPost = () => {
                 <Badge
                   key={idx}
                   variant="secondary"
-                  className="text-sm px-3 py-1"
+                  className="text-xs md:text-sm px-3 py-1"
                 >
                   {tag}
                 </Badge>
@@ -233,12 +233,12 @@ const ViewPost = () => {
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-[#1A1F36] mb-6 leading-tight">
             {post.title}
           </h1>
 
           {/* Excerpt */}
-          <p className="text-xl text-slate-600 mb-8 leading-relaxed">
+          <p className="md:text-xl text-slate-600 mb-8 leading-relaxed">
             {post.excerpt}
           </p>
 
@@ -277,7 +277,7 @@ const ViewPost = () => {
       {/* Post Image */}
 
       {post?.coverImage?.url ? (
-        <div className="max-w-4xl mx-auto px-6 -mt-8 mb-12">
+        <div className="max-w-4xl mx-auto p-2 md:px-6 -mt-8 md:mb-12">
           <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
             <img
               src={post.coverImage.url}
@@ -290,9 +290,9 @@ const ViewPost = () => {
       ) : null}
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-6 pb-16">
+      <div className="max-w-4xl mx-auto p-2 md:px-6 md:pb-16">
         <Card className="shadow-xl">
-          <CardContent className="pt-12 pb-12 px-8 md:px-12">
+          <CardContent className="md:pt-12 md:pb-12 md:px-8 md:px-12">
             <div
               className="prose prose-lg prose-slate max-w-none"
               style={{
@@ -400,14 +400,14 @@ const ViewPost = () => {
         {/* Post Stats */}
         <div className="mt-8 grid grid-cols-3 gap-4">
           <Card className="text-center shadow-md hover:shadow-lg transition-shadow">
-            <CardContent className="pt-6 pb-6">
+            <CardContent className="md:pt-6 md:pb-6">
               <Eye className="h-8 w-8 mx-auto mb-2 text-primary" />
               <p className="text-2xl font-bold">{post.views}</p>
               <p className="text-sm text-muted-foreground">Views</p>
             </CardContent>
           </Card>
           <Card className="text-center shadow-md hover:shadow-lg transition-shadow">
-            <CardContent className="pt-6 pb-6">
+            <CardContent className="md:pt-6 md:pb-6">
               <Heart className="h-8 w-8 mx-auto mb-2 text-primary" />
               <p className="text-2xl font-bold">{likesCount}</p>
               <p className="text-sm text-muted-foreground">Likes</p>
