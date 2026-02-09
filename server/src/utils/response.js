@@ -8,11 +8,11 @@ const sendSuccess = (res, message = "SUCCESS", status = 200, data = null, meta =
 }
 
 // Error response
-const sendError = (res, message = "ERROR", status = 400) => {
+const sendError = (res, message = "ERROR", status = 400, data=null, meta=null) => {
 	return res.status(status).json({
 		message,
-		data: null,
-		meta: null,
+		data,
+		meta,
 	})
 }
 

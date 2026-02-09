@@ -1,80 +1,271 @@
+import crypto from "crypto"
 import User from "../models/user.model.js"
 import jwt from "jsonwebtoken"
 import { sendError, sendSuccess } from "../utils/response.js"
+import { sendEmail } from "../utils/sendEmail.js"
 
 const generateToken = (id, role) => {
-	return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "7d" })
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "7d" })
 }
 
 const registerUser = async (req, res) => {
-	try {
-		const { name, email, password, role } = req.body
-		if (!name || !email || !password) {
-			return sendError(res, "Name, email, and password are required")
-		}
+  try {
+    const { name, email, password, role } = req.body
+    if (!name || !email || !password) {
+      return sendError(res, "Name, email, and password are required")
+    }
 
-		const userExists = await User.findOne({ email })
-		if (userExists) return sendError(res, "User already exists")
+    const userExists = await User.findOne({ email })
+    if (userExists) return sendError(res, "User already exists")
 
-		// Determine role
-		let userRole = "user" // default
-		if (req.user && req.user.role === "admin" && role) {
-			// Admin can set a custom role
-			userRole = role
-		}
+    // Determine role
+    let userRole = "user" // default
+    if (req.user && req.user.role === "admin" && role) {
+      // Admin can set a custom role
+      userRole = role
+    }
 
-		const user = await User.create({ name, email, password, role: userRole })
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role: userRole,
+      isVerified: false,
+    })
 
-		return sendSuccess(res, "User created Successfully", 201, {
-			_id: user._id,
-			name: user.name,
-			email: user.email,
-			role: user.role,
-			token: generateToken(user._id, user.role),
-		})
-	} catch (error) {
-		return sendError(res, `registerUser Error :: ${error}`)
-	}
+    // Generate verification token
+    const rawToken = crypto.randomBytes(32).toString("hex")
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex")
+
+    user.verificationToken = hashedToken
+    user.verificationTokenExpires = Date.now() + 1000 * 60 * 60 // 1 hour
+    await user.save({ validateBeforeSave: false })
+
+    // Send verification email
+    const verifyURL = `${process.env.EMAIL_FRONTEND_URL}/verify-email?token=${rawToken}`
+
+    await sendEmail(
+      user.email,
+      "Verify your email",
+      `
+        <h2>Welcome to Blog App 👋</h2>
+        <p>Please verify your email by clicking the link below:</p>
+        <a href="${verifyURL}">Verify Email</a>
+        <p>This link expires in 1 hour.</p>
+      `,
+    )
+
+    return sendSuccess(
+      res,
+      "Registration successful. Please verify your email.",
+      201,
+      {
+        userCreated: true,
+      },
+    )
+  } catch (error) {
+    return sendError(res, `registerUser Error :: ${error}`)
+  }
 }
 
 const login = async (req, res) => {
-	try {
-		const { email, password } = req.body
+  try {
+    const { email, password } = req.body
 
-		if (!email || !password)
-			return sendError(res, "Email and Password are required")
+    if (!email || !password)
+      return sendError(res, "Email and Password are required")
 
-		const user = await User.findOne({ email })
+    const user = await User.findOne({ email })
 
-		if (!user) return sendError(res, "Invalid credentials")
+    if (!user)
+      return sendError(res, "User not found", 404, {
+        message: "NOT FOUND",
+      })
 
-		const isMatch = await user.matchPassword(password)
+    const isMatch = await user.matchPassword(password)
 
-		if (!isMatch) return sendError(res, "Invalid credentials")
+    if (!isMatch) return sendError(res, "Invalid credentials")
 
-		if(user.status !== "active") {
-			return sendError(res, "Your account is blocked", 403)
-		}
+    if (!user.isVerified) {
+      return sendError(res, "Please verify your email", 403, {
+        verificationMessage: "NOT VERIFIED",
+      })
+    }
 
-		const token = jwt.sign(
-			{ id: user._id, role: user.role },
-			process.env.JWT_SECRET,
-			{ expiresIn: "7d" },
-		)
+    if (user?.status !== "active") {
+      return sendError(res, "Your account is blocked", 403)
+    }
 
-		return sendSuccess(res, "User Logged In successfully", 200, {
-			token,
-			user: {
-				_id: user._id,
-				name: user.name,
-				email: user.email,
-				role: user.role,
-				status: user.status
-			},
-		})
-	} catch (error) {
-		return sendError(res, error.message, 500)
-	}
+    const token = generateToken(user?._id, user?.role)
+
+    return sendSuccess(res, "User Logged In successfully", 200, {
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        isVerified: user.isVerified,
+      },
+    })
+  } catch (error) {
+    return sendError(res, error.message, 500)
+  }
 }
 
-export { registerUser, login }
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.body
+
+    if (!token) {
+      return res.status(400).json({ message: "Verification token is required" })
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
+
+    const user = await User.findOne({
+      verificationToken: hashedToken,
+      verificationTokenExpires: { $gt: Date.now() },
+    })
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Invalid or expired verification link" })
+    }
+
+    user.isVerified = true
+    user.verificationToken = undefined
+    user.verificationTokenExpires = undefined
+
+    await user.save()
+
+    return sendSuccess(res, "Email verified successfully", 200, {
+      emailVerified: true,
+    })
+  } catch (error) {
+    console.error("verifyEmail error:", error)
+    return sendError(res, "Something went wrong", 500, {
+      emailVerified: false,
+    })
+  }
+}
+
+const resendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body
+
+    if (!email) return sendError(res, "Email is required")
+
+    const user = await User.findOne({ email })
+
+    if (!user) return sendError(res, "User not found", 404)
+
+    if (user.isVerified) return sendError(res, "Email is already verified")
+
+    // Generate new token
+    const rawToken = crypto.randomBytes(32).toString("hex")
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex")
+
+    user.verificationToken = hashedToken
+    user.verificationTokenExpires = Date.now() + 60 * 60 * 1000 // 1 hour
+    await user.save({ validateBeforeSave: false })
+
+    const verificationURL = `${process.env.EMAIL_FRONTEND_URL}/verify-email?token=${rawToken}`
+
+    await sendEmail(
+      user.email,
+
+      "Verify your email",
+      `<p>Click below to verify your email:</p>
+       <a href="${verificationURL}">${verificationURL}</a>`,
+    )
+
+    return sendSuccess(res, "Verification email resent")
+  } catch (error) {
+    return sendError(res, error.message, 500)
+  }
+}
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body
+
+    if (!email) return sendError(res, "Email is required")
+
+    const user = await User.findOne({ email })
+
+    if (!user) return sendError(res, "No user with that email", 404)
+
+    const rawToken = crypto.randomBytes(32).toString("hex")
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex")
+
+    user.resetPasswordToken = hashedToken
+    user.resetPasswordTokenExpires = Date.now() + 15 * 60 * 1000 // 15 min
+    await user.save()
+
+    const resetURL = `${process.env.EMAIL_FRONTEND_URL}/reset-password?token=${rawToken}`
+
+    await sendEmail(
+      user.email,
+      "Password Reset Request",
+      `<p>You requested a password reset.</p>
+       <p>Click below to reset your password (valid for 15 minutes):</p>
+       <a href="${resetURL}">Click here</a>`,
+    )
+
+    return sendSuccess(res, "Password reset email sent")
+  } catch (error) {
+    return sendError(res, error.message, 500)
+  }
+}
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params
+    const { password } = req.body
+
+    if (!password) return sendError(res, "Password is required")
+
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex")
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordTokenExpires: { $gt: Date.now() },
+    })
+
+    if (!user) return sendError(res, "Invalid or expired reset link", 400)
+
+    user.password = password
+    user.resetPasswordToken = undefined
+    user.resetPasswordExpires = undefined
+
+    await user.save()
+
+    return sendSuccess(res, "Password reset successful")
+  } catch (error) {
+    return sendError(res, error.message, 500)
+  }
+}
+
+export {
+  registerUser,
+  login,
+  verifyEmail,
+  resendVerificationEmail,
+  forgotPassword,
+  resetPassword
+}
