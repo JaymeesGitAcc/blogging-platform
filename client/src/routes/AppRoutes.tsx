@@ -14,6 +14,8 @@ import { ScrollToTop } from "@/utils/ScrollToTop"
 import AccessDenied from "@/pages/AccessDenied"
 import NotFound from "@/pages/NotFound"
 import AuthProvider from "@/contexts/AuthContext"
+import VerifyEmail from "@/pages/VerifyEmail"
+import ResetPassword from "@/pages/ResetPassword"
 
 const AppRoutes = () => {
   return (
@@ -45,6 +47,8 @@ const AppRoutes = () => {
             />
             <Route path="profile/:id" element={<UserProfile />} />
             <Route path="accessdenied" element={<AccessDenied />} />
+            <Route path="verify-email" element={<VerifyEmail />}/>
+            <Route path="reset-password" element={<ResetPassword />} />
           </Route>
           <Route path="/admin">
             <Route

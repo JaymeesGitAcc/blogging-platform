@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
-import { api } from "@/lib/api"
-import type { AuthResponse, User } from "@/types/auth"
+import type { User } from "@/types/auth"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
+import { loginUser } from "@/services/auth.api"
 
 interface AuthContextType {
 	user: User | null
 	isAuthenticated: boolean
-	login: (email: string, password: string) => Promise<void>
+	login: (email: string, password: string) => Promise<any>
 	logout: () => void
 	hasRole: (role: "admin" | "user") => boolean
 }
@@ -30,12 +30,13 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	// Login function
 	const login = async (email: string, password: string) => {
-		const res = await api.post<AuthResponse>("/api/auth/login", { email, password })
+		const res = await loginUser(email, password)
 		const { token,user } = res.data.data
 
 		localStorage.setItem("token", token)
 		localStorage.setItem("user", JSON.stringify(user))
 		setUser(user)
+		return res
 	}
 
 	// Logout function
