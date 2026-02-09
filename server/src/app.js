@@ -12,7 +12,8 @@ const app = express()
 app.use(cors({
   origin: [
     process.env.CLIENT_URL,
-    process.env.CLIENT_URL_PROD
+    process.env.CLIENT_URL_PROD,
+    process.env.EMAIL_FRONTEND_URL
   ],
   credentials: true,
 }))
