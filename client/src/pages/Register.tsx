@@ -12,9 +12,8 @@ import {
 } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Mail, Lock, User, Feather } from "lucide-react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { registerUser } from "@/services/auth.api"
-import { toast } from "sonner"
 
 export default function Register() {
   const [name, setName] = useState("")
@@ -24,8 +23,6 @@ export default function Register() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
-  const navigate = useNavigate()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
