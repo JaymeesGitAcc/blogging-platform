@@ -251,7 +251,7 @@ const resetPassword = async (req, res) => {
 
     user.password = password
     user.resetPasswordToken = undefined
-    user.resetPasswordExpires = undefined
+    user.resetPasswordTokenExpires = undefined
 
     await user.save()
 
