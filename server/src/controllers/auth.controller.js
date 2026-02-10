@@ -3,6 +3,10 @@ import User from "../models/user.model.js"
 import jwt from "jsonwebtoken"
 import { sendError, sendSuccess } from "../utils/response.js"
 import { sendEmail } from "../utils/sendEmail.js"
+import {
+  generatePasswordResetEmail,
+  generateVerificationEmail,
+} from "../utils/emailTemplate.js"
 
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "7d" })
@@ -46,17 +50,12 @@ const registerUser = async (req, res) => {
 
     // Send verification email
     const verifyURL = `${process.env.EMAIL_FRONTEND_URL}/verify-email?token=${rawToken}`
-
-    await sendEmail(
-      user.email,
-      "Verify your email",
-      `
-        <h2>Welcome to Blog App 👋</h2>
-        <p>Please verify your email by clicking the link below:</p>
-        <a href="${verifyURL}">Verify Email</a>
-        <p>This link expires in 1 hour.</p>
-      `,
+    const { htmlContent, textContent } = generateVerificationEmail(
+      user.name,
+      verifyURL,
     )
+
+    sendEmail(user.email, "Verify your email", htmlContent, textContent)
 
     return sendSuccess(
       res,
@@ -180,12 +179,16 @@ const resendVerificationEmail = async (req, res) => {
 
     const verificationURL = `${process.env.EMAIL_FRONTEND_URL}/verify-email?token=${rawToken}`
 
-    await sendEmail(
-      user.email,
+    const { htmlContent, textContent } = generateVerificationEmail(
+      user.name,
+      verificationURL,
+    )
 
+    sendEmail(
+      user.email,
       "Verify your email",
-      `<p>Click below to verify your email:</p>
-       <a href="${verificationURL}">${verificationURL}</a>`,
+      htmlContent,
+      textContent
     )
 
     return sendSuccess(res, "Verification email resent")
@@ -216,13 +219,12 @@ const forgotPassword = async (req, res) => {
 
     const resetURL = `${process.env.EMAIL_FRONTEND_URL}/reset-password?token=${rawToken}`
 
-    await sendEmail(
-      user.email,
-      "Password Reset Request",
-      `<p>You requested a password reset.</p>
-       <p>Click below to reset your password (valid for 15 minutes):</p>
-       <a href="${resetURL}">Click here</a>`,
+    const { htmlContent, textContent } = generatePasswordResetEmail(
+      user?.name,
+      resetURL,
     )
+
+    sendEmail(user.email, "Password Reset Request", htmlContent, textContent)
 
     return sendSuccess(res, "Password reset email sent")
   } catch (error) {
@@ -237,10 +239,7 @@ const resetPassword = async (req, res) => {
 
     if (!password) return sendError(res, "Password is required")
 
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex")
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
 
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
@@ -267,5 +266,5 @@ export {
   verifyEmail,
   resendVerificationEmail,
   forgotPassword,
-  resetPassword
+  resetPassword,
 }
