@@ -21,7 +21,7 @@ import { formatDate } from "@/utils/formatDate"
 import { api } from "@/lib/api"
 import { useParams } from "react-router-dom"
 import { toast } from "sonner"
-import ProfileSkeleton from "@/components/ProfileSkeleton"
+import ProfileSkeleton from "@/components/loaders/ProfileSkeleton"
 import CountUp from "react-countup"
 
 type UserDataTypes = {
