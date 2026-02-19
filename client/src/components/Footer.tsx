@@ -119,7 +119,7 @@ const Footer = () => {
 
           {/* Copyright */}
           <p className="text-sm text-slate-600 flex items-center gap-2">
-            © {new Date().getFullYear()} BlogHub • Made with{" "}
+            © {new Date().getFullYear()} COLUMN • Made with{" "}
             <Heart className="h-4 w-4 text-red-500 fill-red-500 animate-pulse" />{" "}
             by Andrew James
           </p>
