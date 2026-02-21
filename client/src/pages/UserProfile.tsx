@@ -16,6 +16,7 @@ import {
   FileText,
   Heart,
   Shield,
+  Trash2,
 } from "lucide-react"
 import { formatDate } from "@/utils/formatDate"
 import { api } from "@/lib/api"
@@ -23,6 +24,8 @@ import { useParams } from "react-router-dom"
 import { toast } from "sonner"
 import ProfileSkeleton from "@/components/loaders/ProfileSkeleton"
 import CountUp from "react-countup"
+import { Button } from "@/components/ui/button"
+import DeleteAccountDialog from "@/components/DeleteAccountDialog"
 
 type UserDataTypes = {
   user: {
@@ -43,6 +46,7 @@ type UserDataTypes = {
 const UserProfile = () => {
   const [userData, setUserData] = useState<UserDataTypes | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [showAccountDeleteDialog, setShowAccountDeleteDialog] = useState(false)
   const { id } = useParams()
 
   const getInitials = (name: string) => {
@@ -61,7 +65,7 @@ const UserProfile = () => {
         const { data } = res.data
         setUserData(data)
       } catch (error) {
-        toast.error("Something went wrong", {position: "bottom-right"})
+        toast.error("Something went wrong", { position: "bottom-right" })
       } finally {
         setIsLoading(false)
       }
@@ -69,8 +73,7 @@ const UserProfile = () => {
     loadUser()
   }, [])
 
-  if(isLoading)
-    return <ProfileSkeleton />
+  if (isLoading) return <ProfileSkeleton />
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
@@ -227,6 +230,33 @@ const UserProfile = () => {
               <p className="text-sm text-slate-700">
                 {formatDate(String(userData?.user?.createdAt))}
               </p>
+            </div>
+
+            <Separator />
+
+            <div className="flex items-center justify-between py-3">
+              <div>
+                <p className="font-medium text-slate-900">
+                  Delete Your account
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Permanently delete your account
+                </p>
+              </div>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setShowAccountDeleteDialog(true)}
+                className="group"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Account
+              </Button>
+
+              <DeleteAccountDialog
+                open={showAccountDeleteDialog}
+                onOpenChange={setShowAccountDeleteDialog}
+              />
             </div>
           </CardContent>
         </Card>

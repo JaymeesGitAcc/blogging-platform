@@ -90,7 +90,7 @@ export default function SmallScreenNav() {
   }, [user])
 
   return (
-    <nav className="md:hidden sticky top-0 z-60 bg-background border-b border-border">
+    <nav className="md:hidden sticky top-0 z-50 bg-background border">
       <div className="px-4 sm:px-8 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
