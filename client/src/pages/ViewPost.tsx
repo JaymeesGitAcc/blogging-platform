@@ -6,14 +6,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useAuth } from "@/contexts/AuthContext"
-import { getCommentsByPost, updateComment } from "@/services/comments.api"
 import {
   deletePost,
   getPostBySlug,
-  getRelatedPosts,
   togglePostLike,
 } from "@/services/posts.api.ts"
-import type { Comment } from "@/types/comment.types"
 import type { Post } from "@/types/post.types.ts"
 import { formatContent } from "@/utils/formatContent"
 import { formatDate } from "@/utils/formatDate"
@@ -38,19 +35,11 @@ const ViewPost = () => {
   const [isLiked, setIsLiked] = useState(false)
   const [likesCount, setLikesCount] = useState<number>(0)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [comments, setComments] = useState<Comment[]>([])
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(false)
-  const [totalComments, setTotalComments] = useState(0)
-  const [_totalPages, setTotalPages] = useState(1)
-  const [removedComment, setRemovedComment] = useState<Comment | null>(null)
-  const [relatedPosts, setRelatedPosts] = useState<Post[]>([])
   const { slug } = useParams()
   const { user } = useAuth()
   const navigate = useNavigate()
   const isAuthor = user?._id === post?.author?._id
   const isAdmin = user?.role === "admin"
-  const limit = 5
 
   const handleLike = async () => {
     const response = await togglePostLike(post?._id)
@@ -86,92 +75,6 @@ const ViewPost = () => {
     }
   }
 
-  const handleAddComment = (comment: Comment) => {
-    if (page === 1) {
-      if (comments.length === limit) {
-        setComments((prev) => [comment, ...prev].slice(0, prev.length))
-        setRemovedComment(comments[comments.length - 1])
-        setHasMore(true)
-      } else {
-        setComments((prev) => [comment, ...prev])
-      }
-    } else {
-      setComments((prev) => [comment, ...prev])
-    }
-    setTotalComments((pre) => pre + 1)
-  }
-
-  const handleRemoveComment = (commentId: string) => {
-    setComments((prev) => prev.filter((c) => c._id !== commentId))
-    setTotalComments((c) => c - 1)
-  }
-
-  const loadCommments = async (pageToLoad = 1) => {
-    try {
-      const response = await getCommentsByPost(post?._id, pageToLoad, limit)
-      if (!response) return
-      const { data: newComments, meta } = response
-
-      setTotalPages(meta.totalPages)
-      if (meta.totalPages > 1) {
-        setHasMore(true)
-      }
-      setTotalComments(meta.total)
-      setHasMore(pageToLoad < meta.totalPages)
-      if (!removedComment) {
-        setComments((prev) => [...prev, ...newComments])
-      } else {
-        if (comments.length < limit) {
-          setComments((prev) => [
-            ...prev,
-            { ...removedComment },
-            ...newComments,
-          ])
-        } else {
-          setComments((prev) => [
-            ...prev,
-            { ...removedComment },
-            ...newComments.slice(1),
-          ])
-        }
-        setRemovedComment(null)
-      }
-    } catch (error: any) {
-      console.log(error.message)
-    }
-  }
-
-  const loadRelatedPosts = async (id: string) => {
-    try {
-      const res = await getRelatedPosts(id)
-      const { data } = res
-      setRelatedPosts(data)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const handleUpdateComment = async (id: string, content: string) => {
-    try {
-      const response = await updateComment(id, content)
-      if (!response)
-        toast.error("Something went wrong", { position: "bottom-right" })
-
-      setComments((prev) =>
-        prev.map((c) => (c._id === id ? { ...c, content } : c)),
-      )
-      toast.success("Comment Updated!", { position: "top-right" })
-    } catch (error) {
-      toast.error("Something went wrong", { position: "bottom-right" })
-    }
-  }
-
-  const handleLoadMore = () => {
-    const nextPage = page + 1
-    setPage(nextPage)
-    loadCommments(nextPage)
-  }
-
   useEffect(() => {
     ;(async () => {
       setLoading(true)
@@ -195,9 +98,6 @@ const ViewPost = () => {
         setIsLiked(true)
       }
     }
-    // load comments on the post
-    loadCommments()
-    if (post) loadRelatedPosts(post?._id)
   }, [post])
 
   if (loading) {
@@ -424,26 +324,12 @@ const ViewPost = () => {
         ) : null}
 
         <div className="my-6">
-          {comments && (
-            <CommentsSection
-              comments={comments}
-              postId={post?._id}
-              hasMore={hasMore}
-              total={totalComments}
-              onLoadMore={handleLoadMore}
-              onAddComment={handleAddComment}
-              onRemoveComment={handleRemoveComment}
-              onUpdateComment={handleUpdateComment}
-            />
-          )}
+          <CommentsSection post={post} />
         </div>
-
-        {/* Related Posts Placeholder */}
-        {relatedPosts.length ? (
-          <section>
-            <RelatedPostsSection relatedPosts={relatedPosts} />
-          </section>
-        ) : null}
+        
+        <section>
+          <RelatedPostsSection post={post} />
+        </section>
       </div>
     </div>
   )

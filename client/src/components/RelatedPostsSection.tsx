@@ -3,12 +3,34 @@ import { Calendar, User, BookOpen } from "lucide-react"
 import { formatDate } from "@/utils/formatDate"
 import type { Post } from "@/types/post.types"
 import { Link } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { getRelatedPosts } from "@/services/posts.api"
 
 interface RelatedPostsSectionProps {
-  relatedPosts: Post[]
+  post: Post
 }
 
-function RelatedPostsSection({ relatedPosts }: RelatedPostsSectionProps) {
+function RelatedPostsSection({ post }: RelatedPostsSectionProps) {
+
+  const [relatedPosts, setRelatedPosts] = useState<Post[]>([])
+
+  const loadRelatedPosts = async (id: string) => {
+    try {
+      const res = await getRelatedPosts(id)
+      const { data } = res
+      setRelatedPosts(data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    if(post) loadRelatedPosts(post._id)
+  }, [post])
+
+  if(!relatedPosts.length)
+    return null
+
   return (
       <Card>
         <CardHeader>
