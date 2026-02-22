@@ -56,9 +56,8 @@ const getCommentsByPost = async (req, res) => {
 
     if (!post) return sendError(res, "Post not found", 404)
 
-    const page = Number(req.query.page) || 1
     const limit = Number(req.query.limit) || 10
-    const skip = (page - 1) * limit
+    const skip = Number(req.query.skip) || 0
 
     const [comments, total] = await Promise.all([
       Comment.find({ post: postId })
@@ -70,10 +69,9 @@ const getCommentsByPost = async (req, res) => {
     ])
 
     return sendSuccess(res, "comments fetched", 200, comments, {
-      page,
+      skip,
       total,
       limit,
-      totalPages: Math.ceil(total / limit),
     })
   } catch (error) {
     return sendError(res, error.message, 500)
