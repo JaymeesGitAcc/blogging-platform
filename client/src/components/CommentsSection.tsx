@@ -9,13 +9,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
-import {
-  MessageSquare,
-  Send,
-  Calendar,
-  Trash2,
-  Edit2,
-} from "lucide-react"
+import { MessageSquare, Send, Calendar, Trash2, Edit2 } from "lucide-react"
 import type { Comment } from "@/types/comment.types"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -50,32 +44,26 @@ function CommentsSection({ post }: CommentsSectionProps) {
   const [total, setTotal] = useState<number>(0)
   const [loadingComments, setLoadingComments] = useState(false)
   const [commentId, setCommentId] = useState("")
-  const [hasMore, setHasMore] = useState(false)
-  const [page, setPage] = useState(1)
   const { user } = useAuth()
+
   const limit = 5
+  const hasMore = comments.length < total
 
   const addCommentHandler = async () => {
     setIsSubmitting(true)
     try {
       if (!newComment.trim()) return
-
       const response = await addComment(post?._id, newComment)
       const { data } = response
-
-      if (comments.length >= limit) {
-        comments.unshift(data)
-        comments.pop()
-        setComments(comments)
-        setHasMore(true)
-      } else {
-        setComments((prev) => [data, ...prev])
-      }
-
       setTotal((prev) => prev + 1)
+      if (comments.length < limit) {
+        setComments((prev) => [data, ...prev])
+      } else {
+        setComments((prev) => [data, ...prev.slice(0, -1)])
+      }
       toast.success("Comment added!", { position: "top-right" })
     } catch (error) {
-      console.log("Add comment error::", error)
+      toast.error("Something went wrong", { position: "bottom-right" })
     } finally {
       setIsSubmitting(false)
       setNewComment("")
@@ -85,10 +73,7 @@ function CommentsSection({ post }: CommentsSectionProps) {
   const deleteCommentHandler = async (id: string) => {
     try {
       const res = await deleteComment(id)
-      if(res) {
-        if (comments.length === 1) {
-          setPage((prev) => prev - 1)
-        }
+      if (res) {
         setComments((prev) => prev.filter((c) => c._id !== id))
         setTotal((prev) => prev - 1)
         toast.success("Comment Deleted", { position: "top-right" })
@@ -100,10 +85,10 @@ function CommentsSection({ post }: CommentsSectionProps) {
 
   const updateCommentHandler = async (id: string, comment: string) => {
     try {
-      const res = await updateComment(id, comment)
-      if(res.data?.content) {
+      const res = await updateComment(id, comment.trim())
+      if (res.data?.content) {
         setComments((prev) =>
-          prev.map((c) => (c._id === id ? { ...c, content: comment } : c)),
+          prev.map((c) => (c._id === id ? { ...c, content: comment.trim() } : c)),
         )
       }
     } catch (error) {
@@ -111,40 +96,32 @@ function CommentsSection({ post }: CommentsSectionProps) {
     }
   }
 
-  const fetchComments = async (postId: string, pageToLoad = 1, limit = 5) => {
+  const fetchComments = async (postId: string) => {
     setLoadingComments(true)
     try {
-      const response = await getCommentsByPost(postId, pageToLoad, limit)
-      if (!response) return
+      const response = await getCommentsByPost(postId, 0, limit)
       const { data, meta } = response
-
-      if (comments.length) {
-        setComments((prev) => [...prev, ...data])
-      } else {
-        setComments(data)
-      }
-      if (meta.page < meta.totalPages) {
-        setHasMore(true)
-      } else {
-        setHasMore(false)
-      }
+      setComments(data)
       setTotal(meta.total)
-    } catch (error: any) {
+    } catch (error) {
       console.log(error)
     } finally {
       setLoadingComments(false)
     }
   }
 
-  const handleLoadMore = () => {
-    setPage((p) => p + 1)
+  const handleLoadMore = async () => {
+    const res = await getCommentsByPost(post?._id, comments.length, limit)
+    const { data, meta } = res
+    setComments((prev) => [...prev, ...data])
+    setTotal(meta.total)
   }
 
   useEffect(() => {
     if (post) {
-      fetchComments(post._id, page, limit)
+      fetchComments(post._id)
     }
-  }, [post, page, limit])
+  }, [post])
 
   return (
     <div className="space-y-6">
@@ -197,7 +174,6 @@ function CommentsSection({ post }: CommentsSectionProps) {
 
           {/* Comments List */}
           <div className="space-y-6 mt-6">
-            {/* {loadingComments && <div>Loading...</div>} */}
             {total ? (
               <div className="flex flex-end justify-between items-center gap-2">
                 <div className="text-sm text-gray-700">
@@ -279,7 +255,6 @@ function CommentsSection({ post }: CommentsSectionProps) {
                   <CommentSkeleton key={index} />
                 ))}
               </>
-              
             )}
           </div>
           {hasMore && (

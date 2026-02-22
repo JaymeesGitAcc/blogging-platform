@@ -8,11 +8,11 @@ const addComment = async (id: string | undefined, content = "string") => {
 
 const getCommentsByPost = async (
   id: string | undefined,
-  page = 1,
+  skip = 0,
   limit = 5,
 ) => {
   if (!id) return null
-  const res = await api.get(`/api/comments/${id}?page=${page}&limit=${limit}`)
+  const res = await api.get(`/api/comments/${id}?skip=${skip}&limit=${limit}`)
   return res.data
 }
 
