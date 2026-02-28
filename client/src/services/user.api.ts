@@ -5,4 +5,9 @@ const deleteAccount = async (email: string, password: string) => {
   return res.data
 }
 
-export { deleteAccount }
+const updateBio = async (bio: string) => {
+  const res = await api.post("/api/users/update-bio", {bio})
+  return res.data
+}
+
+export { deleteAccount, updateBio }

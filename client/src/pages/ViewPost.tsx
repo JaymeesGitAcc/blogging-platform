@@ -31,7 +31,7 @@ import { toast } from "sonner"
 
 const ViewPost = () => {
   const [post, setPost] = useState<Post | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [isLiked, setIsLiked] = useState(false)
   const [likesCount, setLikesCount] = useState<number>(0)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -283,11 +283,12 @@ const ViewPost = () => {
                     Author
                   </Badge>
                 </div>
-                <p className="text-muted-foreground mb-4">
-                  A passionate writer and educator sharing insights on web
-                  development and technology. Follow for more articles on React,
-                  JavaScript, and modern web development practices.
-                </p>
+                {post.author?.bio ? (
+                  <p className="text-muted-foreground mb-4">
+                    {post?.author?.bio}
+                  </p>
+                ) : null}
+
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <User className="h-4 w-4" />
                   <span>{post.author.email}</span>
@@ -326,7 +327,7 @@ const ViewPost = () => {
         <div className="my-6">
           <CommentsSection post={post} />
         </div>
-        
+
         <section>
           <RelatedPostsSection post={post} />
         </section>

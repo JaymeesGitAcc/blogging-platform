@@ -34,7 +34,7 @@ const AllPosts = () => {
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery)
   const navigate = useNavigate()
   const { user } = useAuth()
-  const limit = 4
+  const limit = 6
 
   const loadPosts = async (pageToLoad = 1, reset = false) => {
     try {

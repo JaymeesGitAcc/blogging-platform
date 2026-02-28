@@ -2,6 +2,7 @@ export type Author = {
 	_id: string
 	name: string
 	email: string
+	bio?:string
 }
 
 export type Image = {

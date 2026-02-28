@@ -26,6 +26,7 @@ import ProfileSkeleton from "@/components/loaders/ProfileSkeleton"
 import CountUp from "react-countup"
 import { Button } from "@/components/ui/button"
 import DeleteAccountDialog from "@/components/DeleteAccountDialog"
+import ProfileBioSection from "@/components/features/ProfileBioSection"
 
 type UserDataTypes = {
   user: {
@@ -38,6 +39,7 @@ type UserDataTypes = {
     updatedAt?: string
     __v?: number
     owner?: boolean
+    bio: string
   }
   totalPosts: number
   totalLikesReceived: number
@@ -130,6 +132,10 @@ const UserProfile = () => {
             </div>
           </CardContent>
         </Card>
+
+       
+        <ProfileBioSection userBio={userData?.user?.bio || ""} />
+        
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-2 gap-6">
