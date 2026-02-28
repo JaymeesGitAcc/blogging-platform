@@ -87,4 +87,28 @@ const deleteUser = async (req, res) => {
   }
 }
 
-export { getUserProfile, deleteUser }
+const updateBio = async (req, res) => {
+  const { bio } = req.body
+
+  if(!bio) {
+    return sendError(res, "Bio is required", 400)
+  }
+
+  try {
+    const user = await User.findById(req.user._id)
+
+    if(!user) 
+      return sendError(res, "User not Found", 404)
+     
+    user.bio = bio
+
+    await user.save({validateBeforeSave: false})
+
+    sendSuccess(res, "Bio Updated successfully", 201)
+
+  } catch (error) {
+    sendError(res, "Internal Server Error", 500)
+  }
+}
+
+export { getUserProfile, deleteUser, updateBio }

@@ -138,7 +138,7 @@ const getPostBySlug = async (req, res) => {
     const post = await Post.findOne({
       slug: req.params.slug,
       isDeleted: false,
-    }).populate("author", "name email")
+    }).populate("author", "name email bio")
 
     if (!post) return sendError(res, "Post not found", 404)
 

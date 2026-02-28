@@ -28,6 +28,9 @@ const userSchema = mongoose.Schema(
 			enum: ["active", "blocked"],
 			default: "active",
 		},
+		bio: {
+			type: String,
+		},
 		owner: {
 			type: Boolean,
 			default: false
