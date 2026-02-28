@@ -78,15 +78,15 @@ const UserProfile = () => {
   if (isLoading) return <ProfileSkeleton />
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-3 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Profile Header Card */}
         <Card>
           <CardContent className="pt-8">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar */}
-              <Avatar className="h-32 w-32 border-4 border-primary/20">
-                <AvatarFallback className="bg-[#1A1F36] text-white text-4xl font-bold">
+              <Avatar className="h-20 w-20 border-4 border-primary/20 md:h-32 md:w-32">
+                <AvatarFallback className="bg-[#1A1F36] text-white text-xl font-bold md:text-4xl">
                   {getInitials(String(userData?.user?.name))}
                 </AvatarFallback>
               </Avatar>
@@ -94,7 +94,7 @@ const UserProfile = () => {
               {/* User Info */}
               <div className="flex-1 text-center md:text-left">
                 <div className="flex flex-col md:flex-row md:items-center gap-3 mb-3">
-                  <h1 className="text-3xl font-bold text-slate-900">
+                  <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
                     {userData?.user?.name}
                   </h1>
                   <div className="flex items-center gap-2 justify-center md:justify-start">
@@ -112,22 +112,17 @@ const UserProfile = () => {
                 </div>
 
                 <div className="flex flex-col gap-2 text-slate-600 mb-4">
-                  <div className="flex items-center gap-2 justify-center md:justify-start">
+                  <div className="flex items-center gap-2 justify-center text-sm md:justify-start">
                     <Mail className="h-4 w-4" />
                     <span>{userData?.user.email}</span>
                   </div>
-                  <div className="flex items-center gap-2 justify-center md:justify-start">
+                  <div className="flex items-center gap-2 justify-center text-sm md:justify-start">
                     <Calendar className="h-4 w-4" />
                     <span>
                       Joined {formatDate(String(userData?.user?.createdAt))}
                     </span>
                   </div>
                 </div>
-
-                {/* <Button className="group">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Profile
-                </Button> */}
               </div>
             </div>
           </CardContent>
@@ -147,7 +142,7 @@ const UserProfile = () => {
               <FileText className="h-5 w-5 text-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-slate-900">
+              <div className="text-2xl md:text-4xl font-bold text-slate-900">
                 <CountUp end={userData?.totalPosts || 0} duration={1} />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -164,7 +159,7 @@ const UserProfile = () => {
               <Heart className="h-5 w-5 text-red-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-slate-900">
+              <div className="text-2xl md:text-4xl font-bold text-slate-900">
                 <CountUp end={userData?.totalLikesReceived || 0} duration={1} />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -176,7 +171,7 @@ const UserProfile = () => {
 
         {/* Account Details Card */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-wrap">
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
               Account Details
@@ -186,7 +181,7 @@ const UserProfile = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between py-3">
+            <div className="flex items-center flex-wrap gap-2 justify-between py-3">
               <div>
                 <p className="font-medium text-slate-900">User ID</p>
                 <p className="text-sm text-muted-foreground">
@@ -200,7 +195,7 @@ const UserProfile = () => {
 
             <Separator />
 
-            <div className="flex items-center justify-between py-3">
+            <div className="flex items-center flex-wrap gap-2 justify-between py-3">
               <div>
                 <p className="font-medium text-slate-900">Email Address</p>
                 <p className="text-sm text-muted-foreground">
@@ -212,7 +207,7 @@ const UserProfile = () => {
 
             <Separator />
 
-            <div className="flex items-center justify-between py-3">
+            <div className="flex items-center flex-wrap gap-2 justify-between py-3">
               <div>
                 <p className="font-medium text-slate-900">Account Status</p>
                 <p className="text-sm text-muted-foreground">
@@ -226,7 +221,7 @@ const UserProfile = () => {
 
             <Separator />
 
-            <div className="flex items-center justify-between py-3">
+            <div className="flex items-center flex-wrap gap-2 justify-between py-3">
               <div>
                 <p className="font-medium text-slate-900">Member Since</p>
                 <p className="text-sm text-muted-foreground">
@@ -240,7 +235,7 @@ const UserProfile = () => {
 
             <Separator />
 
-            <div className="flex items-center justify-between py-3">
+            <div className="flex items-center flex-wrap gap-2 justify-between py-3">
               <div>
                 <p className="font-medium text-slate-900">
                   Delete Your account

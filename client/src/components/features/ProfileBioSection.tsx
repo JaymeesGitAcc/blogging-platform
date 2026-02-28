@@ -94,11 +94,11 @@ const ProfileBioSection = ({ userBio }: ProfileBioSectionProps) => {
         </CardHeader>
         <CardContent>
           {bio ? (
-            <p className="text-slate-700 leading-relaxed">
-              <i>{bio}</i>
+            <p className="text-slate-700 leading-relaxed italic text-sm md:text-base">
+              {bio}
             </p>
           ) : (
-            <p className="text-muted-foreground italic">
+            <p className="text-muted-foreground italic text-sm md:text-base">
               No bio added yet. Click edit to add your bio.
             </p>
           )}
